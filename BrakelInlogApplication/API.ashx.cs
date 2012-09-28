@@ -6,6 +6,7 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Xml;
+using Newtonsoft.Json.Linq;
 
 
 namespace BrakelInlogApplication
@@ -152,14 +153,15 @@ namespace BrakelInlogApplication
 					{
 						case "login":
 						{
+							#region Prepare to handle login request
 							string username = _context.Request.QueryString["username"];
 							if (!String.IsNullOrWhiteSpace(username))
 							{
-								if (!String.IsNullOrWhiteSpace(username))
+								string hash = _context.Request.QueryString["hash"];
+								if (!String.IsNullOrWhiteSpace(hash))
 								{
-									string hash = _context.Request.QueryString["hash"];
 									Guid userToken = login(username, hash);
-									result = String.Format(@"{{ ""status"":""{0}"", ""token"":""{1}"" }}", ((userToken == Guid.Empty) ? "failed" : "success"), userToken);
+									result = String.Format(@"{{ ""userToken"":""{1}"" }}", userToken);
 								}
 								else
 								{
@@ -170,10 +172,12 @@ namespace BrakelInlogApplication
 							{
 								throw new APIException("Error: No valid username was provided", "username");
 							}
+							#endregion
 							break;
 						}
 						case "getBuildings":
 						{
+							#region Prepare to handle getBuildings request
 							string userTokenString = _context.Request.QueryString["userToken"];
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
@@ -185,10 +189,12 @@ namespace BrakelInlogApplication
 							{
 								throw new APIException("Error: No valid userToken was provided", "userToken");
 							}
+							#endregion
 							break;
 						}
 						case "getLayout":
 						{
+							#region Prepare to handle getLayout request
 							string userTokenString = _context.Request.QueryString["userToken"];
 							string buildingIdString = _context.Request.QueryString["buildingId"];
 							Guid userToken;
@@ -208,10 +214,12 @@ namespace BrakelInlogApplication
 							{
 								throw new APIException("Error: No valid userToken was provided", "userToken");
 							}
+							#endregion
 							break;
 						}
 						case "changeGroups":
 						{
+							#region Prepare to handle changeGroups request
 							string userTokenString = _context.Request.QueryString["userToken"];
 							string buildingIdString = _context.Request.QueryString["buildingId"];
 							Guid userToken;
@@ -220,7 +228,10 @@ namespace BrakelInlogApplication
 								Guid buildingId;
 								if (Guid.TryParse(buildingIdString, out buildingId))
 								{
-									string layoutXMLString = getUserLayout(userToken, buildingId);
+									string changesString = _context.Request.QueryString["changes"];
+									JObject obj = JObject.Parse(changesString);
+									List<Changes> changes = new List<Changes>();
+									changes = makeChangesToGroups(userToken, buildingId, changes);
 								}
 								else
 								{
@@ -231,6 +242,7 @@ namespace BrakelInlogApplication
 							{
 								throw new APIException("Error: No valid userToken was provided", "userToken");
 							}
+							#endregion
 							break;
 						}
 						default:
@@ -264,7 +276,15 @@ namespace BrakelInlogApplication
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
 		private Guid login(string username, string passwordHash)
 		{
-			throw new NotImplementedException();
+			if (username.ToLower() == "test" && passwordHash.ToLower() == "da830961dc3af47fff6d1af3be3d66d6f229ef53")
+			{
+				return Guid.NewGuid();
+			}
+			else
+			{
+				return Guid.Empty;
+			}
+			//throw new NotImplementedException();
 			//using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			//{
 			//    connection.Open();
