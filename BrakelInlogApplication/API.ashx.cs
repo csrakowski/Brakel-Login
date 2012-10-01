@@ -17,28 +17,28 @@ namespace BrakelInlogApplication
 	public class APIException : ArgumentException
 	{
 		/// <summary>
-		/// Initializes a new instance of the System.ArgumentException class.
+		/// Initializes a new instance of the BrakelInlogApplication.APIException class.
 		/// </summary>
 		public APIException(): base() { }
 		/// <summary>
-		///  Initializes a new instance of the System.ArgumentException class with a specified error message.
+		///  Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		public APIException(string message) : base(message) { }
 		/// <summary>
-		/// Initializes a new instance of the System.ArgumentException class with a specified error message and a reference to the inner exception that is the cause of this exception.
+		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message and a reference to the inner exception that is the cause of this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
 		public APIException(string message, Exception innerException) : base(message, innerException) { }
 		/// <summary>
-		/// Initializes a new instance of the System.ArgumentException class with a specified error message and the name of the parameter that causes this exception.
+		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message and the name of the parameter that causes this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="paramName">The name of the parameter that caused the current exception.</param>
 		public APIException(string message, string paramName) : base(message, paramName) { }
 		/// <summary>
-		/// Initializes a new instance of the System.ArgumentException class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
+		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="paramName">The name of the parameter that caused the current exception.</param>
@@ -143,6 +143,7 @@ namespace BrakelInlogApplication
 		/// <param name="workItemState"></param>
 		private void StartAsyncTask(Object workItemState)
 		{
+			_context.Response.ContentType = "application/JSON";
 			String result = "";
 			try
 			{
@@ -165,12 +166,12 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error: No valid passwordhash was provided", "hash");
+									throw new APIException("Error - No valid passwordhash was provided", "hash");
 								}
 							}
 							else
 							{
-								throw new APIException("Error: No valid username was provided", "username");
+								throw new APIException("Error - No valid username was provided", "username");
 							}
 							#endregion
 							break;
@@ -189,7 +190,7 @@ namespace BrakelInlogApplication
 							}
 							else
 							{
-								throw new APIException("Error: No valid userToken was provided", "userToken");
+								throw new APIException("Error - No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
@@ -210,12 +211,12 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error: No valid buildingId was provided", "buildingId");
+									throw new APIException("Error - No valid buildingId was provided", "buildingId");
 								}
 							}
 							else
 							{
-								throw new APIException("Error: No valid userToken was provided", "userToken");
+								throw new APIException("Error - No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
@@ -241,30 +242,30 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error: No valid buildingId was provided", "buildingId");
+									throw new APIException("Error - No valid buildingId was provided", "buildingId");
 								}
 							}
 							else
 							{
-								throw new APIException("Error: No valid userToken was provided", "userToken");
+								throw new APIException("Error - No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
 						}
 						default:
 						{
-							throw new APIException(String.Format("Error: '{0}' is not a valid command", command), "command");
+							throw new APIException(String.Format("Error - '{0}' is not a valid command", command), "command");
 						}
 					}
 				}
 				else
 				{
-					throw new APIException("Error: Invalid invocation, please specify a command", "command");
+					throw new APIException("Error - Invalid invocation, please specify a command", "command");
 				}
 			}
 			catch (Exception ex)
 			{
-				result = String.Format(@"{{ ""message"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message, ex.StackTrace);				
+				result = String.Format(@"{{ ""message"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' '), ex.StackTrace.Replace('\n', ' ').Replace("\\", "\\\\"));
 			}
 			finally
 			{
