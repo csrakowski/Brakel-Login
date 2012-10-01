@@ -9,9 +9,20 @@
             Class that represents a building/location in the system
             </summary>
         </member>
+        <member name="M:BrakelInlogApplication.Building.ToJSONString">
+            <summary>
+            Returns a JSON representation of the current object
+            </summary>
+            <returns>The JSON representing the current object</returns>
+        </member>
         <member name="P:BrakelInlogApplication.Building.BuildingID">
             <summary>
             The building id used to identify the building
+            </summary>
+        </member>
+        <member name="P:BrakelInlogApplication.Building.BuildingName">
+            <summary>
+            The name of the building for human readable context
             </summary>
         </member>
         <member name="P:BrakelInlogApplication.Building.AccessRole">
@@ -53,6 +64,12 @@
             <summary>
             Class used for taking actions with groups
             </summary>
+        </member>
+        <member name="M:BrakelInlogApplication.Changes.ToJSONString">
+            <summary>
+            Returns a JSON representation of the current object
+            </summary>
+            <returns>The JSON representing the current object</returns>
         </member>
         <member name="P:BrakelInlogApplication.Changes.GroupID">
             <summary>

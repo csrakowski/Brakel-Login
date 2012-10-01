@@ -24,5 +24,14 @@ namespace BrakelInlogApplication
 		/// Status boolean, null for new, true if success, false if failed
 		/// </summary>
 		public bool? ChangeStatus { get; set; }
+
+		/// <summary>
+		/// Returns a JSON representation of the current object
+		/// </summary>
+		/// <returns>The JSON representing the current object</returns>
+		public String ToJSONString()
+		{
+			return String.Format(@"{{ ""GroupID"":""{0}"", ""ChangeValue"":""{1}"", ""AccessRole"":""{2}"" }}", GroupID, ChangeValue, ChangeStatus.ToString());
+		}
 	}
 }

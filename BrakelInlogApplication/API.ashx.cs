@@ -165,7 +165,7 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error: No valid password was provided", "password");
+									throw new APIException("Error: No valid passwordhash was provided", "hash");
 								}
 							}
 							else
@@ -183,7 +183,9 @@ namespace BrakelInlogApplication
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
 								List<Building> buildings = getBuildings(userToken);
-								result = "";
+								buildings.ForEach(
+									i => result += i.ToJSONString()
+								);
 							}
 							else
 							{
@@ -204,6 +206,7 @@ namespace BrakelInlogApplication
 								if (Guid.TryParse(buildingIdString, out buildingId))
 								{
 									string layoutXMLString = getUserLayout(userToken, buildingId);
+									result = layoutXMLString;
 								}
 								else
 								{
@@ -232,6 +235,9 @@ namespace BrakelInlogApplication
 									JObject obj = JObject.Parse(changesString);
 									List<Changes> changes = new List<Changes>();
 									changes = makeChangesToGroups(userToken, buildingId, changes);
+									changes.ForEach(
+										i => result += i.ToJSONString()
+									);
 								}
 								else
 								{
@@ -284,7 +290,7 @@ namespace BrakelInlogApplication
 			{
 				return Guid.Empty;
 			}
-			//throw new NotImplementedException();
+
 			//using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			//{
 			//    connection.Open();
@@ -306,11 +312,18 @@ namespace BrakelInlogApplication
 		{
 			if (userToken != Guid.Empty)
 			{
-				return new List<Building>();
+				List<Building> buildings = new List<Building>();
+				buildings.Add(new Building()
+				{
+					AccessRole = AccessRole.Administrator,
+					BuildingID = Guid.NewGuid(),
+					BuildingName = "Brakel, Raam/Duo hal"
+				});
+				return buildings;
 			}
 			else
 			{
-				throw new APIException("userToken", "The provided userToken is invalid or expired");
+				throw new APIException("The provided userToken is invalid or expired", "userToken");
 			}
 			
 			//Validate token
@@ -339,12 +352,12 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					throw new APIException("buildingId", "The provided buildingId is invalid");
+					throw new APIException("The provided buildingId is invalid", "buildingId");
 				}
 			}
 			else
 			{
-				throw new APIException("userToken", "The provided userToken is invalid or expired");
+				throw new APIException("The provided userToken is invalid or expired", "userToken");
 			}
 
 			//validate token
@@ -370,12 +383,12 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					throw new APIException("buildingId", "The provided buildingId is invalid");
+					throw new APIException("The provided buildingId is invalid", "buildingId");
 				}
 			}
 			else
 			{
-				throw new APIException("userToken", "The provided userToken is invalid or expired");
+				throw new APIException("The provided userToken is invalid or expired", "userToken");
 			}
 			//validate token
 			//get the layout for the user - building combination

@@ -16,10 +16,23 @@ namespace BrakelInlogApplication
 		public Guid BuildingID { get; set; }
 
 		/// <summary>
+		/// The name of the building for human readable context
+		/// </summary>
+		public String BuildingName { get; set; }
+
+		/// <summary>
 		/// The access role of the user in this building
 		/// </summary>
 		public AccessRole AccessRole { get; set; }
 
+		/// <summary>
+		/// Returns a JSON representation of the current object
+		/// </summary>
+		/// <returns>The JSON representing the current object</returns>
+		public String ToJSONString()
+		{
+			return String.Format(@"{{ ""BuildingID"":""{0}"", ""BuildingName"":""{1}"", ""AccessRole"":""{2}"" }}", BuildingID, BuildingName, AccessRole.ToString());
+		}
 	}
 
 	/// <summary>
