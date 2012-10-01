@@ -3,11 +3,11 @@
   <publishProfile publishUrl="E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Publish" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Publish" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
     <file relUrl="bin/Newtonsoft.Json.dll" publishTime="09/08/2012 03:00:16" />
     <file relUrl="bin/Newtonsoft.Json.xml" publishTime="09/08/2012 03:00:16" />
-    <file relUrl="Web.config" publishTime="09/28/2012 17:12:04" />
+    <file relUrl="Web.config" publishTime="10/01/2012 11:50:47" />
     <file relUrl="API.ashx" publishTime="09/28/2012 10:22:25" />
-    <file relUrl="bin/BrakelInlogApplication.dll" publishTime="09/28/2012 17:10:16" />
-    <file relUrl="bin/BrakelInlogApplication.pdb" publishTime="09/28/2012 17:10:16" />
+    <file relUrl="bin/BrakelInlogApplication.dll" publishTime="10/01/2012 13:03:28" />
+    <file relUrl="bin/BrakelInlogApplication.pdb" publishTime="10/01/2012 13:03:27" />
     <file relUrl="bin/Newtonsoft.Json.pdb" publishTime="09/08/2012 03:00:16" />
-    <file relUrl="bin/BrakelInlogApplication.XML" publishTime="09/28/2012 17:10:16" />
+    <file relUrl="bin/BrakelInlogApplication.XML" publishTime="10/01/2012 13:03:27" />
   </publishProfile>
 </publishData>

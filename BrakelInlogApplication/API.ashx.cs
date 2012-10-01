@@ -161,7 +161,7 @@ namespace BrakelInlogApplication
 								if (!String.IsNullOrWhiteSpace(hash))
 								{
 									Guid userToken = login(username, hash);
-									result = String.Format(@"{{ ""userToken"":""{1}"" }}", userToken);
+									result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
 								}
 								else
 								{
@@ -304,7 +304,14 @@ namespace BrakelInlogApplication
 		/// <returns>The list of Buildings</returns>
 		private List<Building> getBuildings(Guid userToken)
 		{
-			throw new NotImplementedException();
+			if (userToken != Guid.Empty)
+			{
+				return new List<Building>();
+			}
+			else
+			{
+				throw new APIException("userToken", "The provided userToken is invalid or expired");
+			}
 			
 			//Validate token
 			//join buildings on users rights
@@ -320,7 +327,25 @@ namespace BrakelInlogApplication
 		/// <returns>The list of changes with a boolean value to indicate succes of the operation per change</returns>
 		private List<Changes> makeChangesToGroups(Guid userToken, Guid buildingId, List<Changes> changes)
 		{
-			throw new NotImplementedException();
+			if (userToken != Guid.Empty)
+			{
+				if (buildingId != Guid.Empty)
+				{
+					foreach (var item in changes)
+					{
+						item.ChangeStatus = true;
+					}
+					return changes;
+				}
+				else
+				{
+					throw new APIException("buildingId", "The provided buildingId is invalid");
+				}
+			}
+			else
+			{
+				throw new APIException("userToken", "The provided userToken is invalid or expired");
+			}
 
 			//validate token
 			//validate user has rights to make changes in this building
@@ -337,8 +362,21 @@ namespace BrakelInlogApplication
 		/// <returns>A string representation of the XML, which describes the layout of the application</returns>
 		private string getUserLayout(Guid userToken, Guid buildingId)
 		{
-			throw new NotImplementedException();
-
+			if (userToken != Guid.Empty)
+			{
+				if (buildingId != Guid.Empty)
+				{
+					return @"<XML><Pages><Page id=""1""><Widget id=""0"" x=""12"" y=""12"" /></Page></Pages></XML>";
+				}
+				else
+				{
+					throw new APIException("buildingId", "The provided buildingId is invalid");
+				}
+			}
+			else
+			{
+				throw new APIException("userToken", "The provided userToken is invalid or expired");
+			}
 			//validate token
 			//get the layout for the user - building combination
 			//return layout xml as a string
