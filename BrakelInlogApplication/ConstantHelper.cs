@@ -14,7 +14,7 @@ namespace BrakelInlogApplication
 		{
 			get
 			{
-				return ConfigurationManager.AppSettings["ConnectionInfo"] ?? "";
+				return ConfigurationManager.ConnectionStrings["BasisDB"].ConnectionString ?? "";
 			}
 		}
 	}

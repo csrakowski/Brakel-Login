@@ -146,7 +146,7 @@ namespace BrakelInlogApplication
 			_context.Response.ContentType = "application/JSON";
 			String result = "";
 			try
-			{
+			{				
 				string command = _context.Request.QueryString["command"] ?? "";
 				if (!String.IsNullOrWhiteSpace(command))
 				{
@@ -283,25 +283,41 @@ namespace BrakelInlogApplication
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
 		private Guid login(string username, string passwordHash)
 		{
+			Guid userToken = Guid.Empty;
+
 			if (username.ToLower() == "test" && passwordHash.ToLower() == "da830961dc3af47fff6d1af3be3d66d6f229ef53")
 			{
 				return Guid.NewGuid();
 			}
-			else
+			
+			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
-				return Guid.Empty;
+			    connection.Open();
+
+				// perform work with connection
+				string query = String.Format("SELECT hash FROM user WHERE username = '{0}'", username);
+				SqlCommand command = new SqlCommand(query, connection);
+				string sqlHash = command.ExecuteScalar() as String;
+
+				//validate credentials
+				if (passwordHash.Equals(sqlHash, StringComparison.OrdinalIgnoreCase))
+				{
+					//generate token
+					userToken = Guid.NewGuid();
+
+					//register token in db to the user
+					query = String.Format("INSERT INTO token SET username = '{0}', token = '{1}', createDateTime = '{2}'", username, userToken, DateTime.Now.ToString());
+					command = new SqlCommand(query, connection);
+					int result = command.ExecuteNonQuery();
+					if (result < 1)
+					{
+						userToken = Guid.Empty;
+					}
+				}
 			}
 
-			//using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
-			//{
-			//    connection.Open();
-			//    // perform work with connection
-			//}
-
-			//validate credentials,
-			//generate token
-			//register token in db to the user
 			//return id
+			return userToken;
 		}
 
 		/// <summary>
@@ -380,7 +396,7 @@ namespace BrakelInlogApplication
 			{
 				if (buildingId != Guid.Empty)
 				{
-					return @"<XML><Pages><Page id=""1""><Widget id=""0"" x=""12"" y=""12"" /></Page></Pages></XML>";
+					return @"<?xml version=""1.0""?><XML><Pages><Page id=""1""><Widget id=""0"" x=""12"" y=""12"" /></Page></Pages></XML>";
 				}
 				else
 				{
