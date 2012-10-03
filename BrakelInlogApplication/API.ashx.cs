@@ -327,9 +327,10 @@ namespace BrakelInlogApplication
 		/// <returns>The list of Buildings</returns>
 		private List<Building> getBuildings(Guid userToken)
 		{
+			List<Building> buildings = new List<Building>();
+
 			if (userToken != Guid.Empty)
-			{
-				List<Building> buildings = new List<Building>();
+			{				
 				buildings.Add(new Building()
 				{
 					AccessRole = AccessRole.Administrator,
@@ -342,11 +343,40 @@ namespace BrakelInlogApplication
 			{
 				throw new APIException("The provided userToken is invalid or expired", "userToken");
 			}
-			
-			//Validate token
-			//join buildings on users rights
+
+			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			{
+				connection.Open();
+				string query = String.Format("SELECT username FROM token WHERE token = '{0}'", userToken);
+				SqlCommand command = new SqlCommand(query, connection);
+
+				//Validate token
+				string username = command.ExecuteScalar() as String;
+				if (String.IsNullOrWhiteSpace(username))
+				{
+					throw new APIException("The provided userToken is invalid or expired", "userToken");
+				}
+				else
+				{
+					//join buildings on users rights
+					query = String.Format("SELECT * FROM building LEFT JOIN userBuildingAccessRights ON building.buildingId = userBuildingAccessRights.buildingId WHERE userName = '{0}'", username);
+					command = new SqlCommand(query, connection);
+
+					SqlDataReader reader = command.ExecuteReader();
+					while (reader.Read())
+					{
+						buildings.Add(new Building()
+						{
+							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+							BuildingID = Guid.Parse(reader["buildingId"].ToString()),
+							BuildingName = reader["buildingName"].ToString()
+						});
+					}
+				}
+			}
 			//return collection
-		}
+			return buildings;			
+		}		
 
 		/// <summary>
 		/// Method to iniate making changes to groups

@@ -33,6 +33,30 @@ namespace BrakelInlogApplication
 		{
 			return String.Format(@"{{ ""BuildingID"":""{0}"", ""BuildingName"":""{1}"", ""AccessRole"":""{2}"" }}", BuildingID, BuildingName, AccessRole.ToString());
 		}
+
+		/// <summary>
+		/// Parses the input string and converts it to a value of the AccessRole Enumeration
+		/// </summary>
+		/// <param name="rightsName">The string representation of the AccessRole</param>
+		/// <returns>The AccessRole</returns>
+		public static AccessRole ParseAccessRightsFromString(string rightsName)
+		{
+			switch (rightsName)
+			{
+				case "Administrator":
+				{
+					return AccessRole.Administrator;
+				}
+				case "ReadOnly":
+				{
+					return AccessRole.ReadOnly;
+				}
+				default:
+				{
+					return AccessRole.None;
+				}
+			}
+		}
 	}
 
 	/// <summary>
@@ -54,5 +78,5 @@ namespace BrakelInlogApplication
 		/// None means the user has no rights in this building, buildings with these rights should not be shown in the list
 		/// </summary>
 		None
-	}
+	}	
 }

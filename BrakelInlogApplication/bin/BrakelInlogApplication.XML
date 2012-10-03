@@ -15,6 +15,13 @@
             </summary>
             <returns>The JSON representing the current object</returns>
         </member>
+        <member name="M:BrakelInlogApplication.Building.ParseAccessRightsFromString(System.String)">
+            <summary>
+            Parses the input string and converts it to a value of the AccessRole Enumeration
+            </summary>
+            <param name="rightsName">The string representation of the AccessRole</param>
+            <returns>The AccessRole</returns>
+        </member>
         <member name="P:BrakelInlogApplication.Building.BuildingID">
             <summary>
             The building id used to identify the building
