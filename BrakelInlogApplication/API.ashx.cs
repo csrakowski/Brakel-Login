@@ -166,12 +166,12 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error - No valid passwordhash was provided", "hash");
+									throw new APIException("No valid passwordhash was provided", "hash");
 								}
 							}
 							else
 							{
-								throw new APIException("Error - No valid username was provided", "username");
+								throw new APIException("No valid username was provided", "username");
 							}
 							#endregion
 							break;
@@ -185,12 +185,13 @@ namespace BrakelInlogApplication
 							{
 								List<Building> buildings = getBuildings(userToken);
 								buildings.ForEach(
-									i => result += i.ToJSONString()
+									i => result += ("," + i.ToJSONString())
 								);
+								result = "[" + result.Substring(1) + "]";
 							}
 							else
 							{
-								throw new APIException("Error - No valid userToken was provided", "userToken");
+								throw new APIException("No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
@@ -203,20 +204,20 @@ namespace BrakelInlogApplication
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
-								Guid buildingId;
-								if (Guid.TryParse(buildingIdString, out buildingId))
+								int buildingId;
+								if (Int32.TryParse(buildingIdString, out buildingId))
 								{
 									string layoutXMLString = getUserLayout(userToken, buildingId);
-									result = layoutXMLString;
+									result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
 								}
 								else
 								{
-									throw new APIException("Error - No valid buildingId was provided", "buildingId");
+									throw new APIException("No valid buildingId was provided", "buildingId");
 								}
 							}
 							else
 							{
-								throw new APIException("Error - No valid userToken was provided", "userToken");
+								throw new APIException("No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
@@ -229,8 +230,8 @@ namespace BrakelInlogApplication
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
-								Guid buildingId;
-								if (Guid.TryParse(buildingIdString, out buildingId))
+								int buildingId;
+								if (Int32.TryParse(buildingIdString, out buildingId))
 								{
 									string changesString = _context.Request.QueryString["changes"];
 									JObject obj = JObject.Parse(changesString);
@@ -242,30 +243,34 @@ namespace BrakelInlogApplication
 								}
 								else
 								{
-									throw new APIException("Error - No valid buildingId was provided", "buildingId");
+									throw new APIException("No valid buildingId was provided", "buildingId");
 								}
 							}
 							else
 							{
-								throw new APIException("Error - No valid userToken was provided", "userToken");
+								throw new APIException("No valid userToken was provided", "userToken");
 							}
 							#endregion
 							break;
 						}
 						default:
 						{
-							throw new APIException(String.Format("Error - '{0}' is not a valid command", command), "command");
+							throw new APIException(String.Format("'{0}' is not a valid command", command), "command");
 						}
 					}
 				}
 				else
 				{
-					throw new APIException("Error - Invalid invocation, please specify a command", "command");
+					throw new APIException("Invalid invocation, please specify a command", "command");
 				}
+			}
+			catch (APIException ex)
+			{
+				result = String.Format(@"{{ ""error"":""{0}"" }}", ex.Message);
 			}
 			catch (Exception ex)
 			{
-				result = String.Format(@"{{ ""message"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' '), ex.StackTrace.Replace('\n', ' ').Replace("\\", "\\\\"));
+				result = String.Format(@"{{ ""error"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' '), ex.StackTrace.Replace('\n', ' ').Replace("\\", "\\\\"));
 			}
 			finally
 			{
@@ -284,18 +289,13 @@ namespace BrakelInlogApplication
 		private Guid login(string username, string passwordHash)
 		{
 			Guid userToken = Guid.Empty;
-
-			if (username.ToLower() == "test" && passwordHash.ToLower() == "da830961dc3af47fff6d1af3be3d66d6f229ef53")
-			{
-				return Guid.NewGuid();
-			}
 			
 			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 			    connection.Open();
 
 				// perform work with connection
-				string query = String.Format("SELECT hash FROM user WHERE username = '{0}'", username);
+				string query = String.Format("SELECT [hash] FROM [user] WHERE [username] = '{0}'", username);
 				SqlCommand command = new SqlCommand(query, connection);
 				string sqlHash = command.ExecuteScalar() as String;
 
@@ -306,7 +306,7 @@ namespace BrakelInlogApplication
 					userToken = Guid.NewGuid();
 
 					//register token in db to the user
-					query = String.Format("INSERT INTO token SET username = '{0}', token = '{1}', createDateTime = '{2}'", username, userToken, DateTime.Now.ToString());
+					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString());
 					command = new SqlCommand(query, connection);
 					int result = command.ExecuteNonQuery();
 					if (result < 1)
@@ -329,47 +329,36 @@ namespace BrakelInlogApplication
 		{
 			List<Building> buildings = new List<Building>();
 
-			if (userToken != Guid.Empty)
-			{				
-				buildings.Add(new Building()
-				{
-					AccessRole = AccessRole.Administrator,
-					BuildingID = Guid.NewGuid(),
-					BuildingName = "Brakel, Raam/Duo hal"
-				});
-				return buildings;
-			}
-			else
-			{
-				throw new APIException("The provided userToken is invalid or expired", "userToken");
-			}
-
 			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
-				string query = String.Format("SELECT username FROM token WHERE token = '{0}'", userToken);
+				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
 				SqlCommand command = new SqlCommand(query, connection);
 
 				//Validate token
 				string username = command.ExecuteScalar() as String;
 				if (String.IsNullOrWhiteSpace(username))
 				{
-					throw new APIException("The provided userToken is invalid or expired", "userToken");
+					throw new APIException("The provided userToken is invalid or has expired", "userToken");
 				}
 				else
 				{
 					//join buildings on users rights
-					query = String.Format("SELECT * FROM building LEFT JOIN userBuildingAccessRights ON building.buildingId = userBuildingAccessRights.buildingId WHERE userName = '{0}'", username);
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
+													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
+													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE	[user].[username] = '{0}'", username);
 					command = new SqlCommand(query, connection);
 
+					//Fill collection
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
 						buildings.Add(new Building()
 						{
 							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-							BuildingID = Guid.Parse(reader["buildingId"].ToString()),
-							BuildingName = reader["buildingName"].ToString()
+							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingName = reader["name"].ToString()
 						});
 					}
 				}
@@ -385,11 +374,11 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building id for the building in which the groups are</param>
 		/// <param name="changes">The list of changes you want to commit</param>
 		/// <returns>The list of changes with a boolean value to indicate succes of the operation per change</returns>
-		private List<Changes> makeChangesToGroups(Guid userToken, Guid buildingId, List<Changes> changes)
+		private List<Changes> makeChangesToGroups(Guid userToken, int buildingId, List<Changes> changes)
 		{
 			if (userToken != Guid.Empty)
 			{
-				if (buildingId != Guid.Empty)
+				if (buildingId != 0)
 				{
 					foreach (var item in changes)
 					{
@@ -420,26 +409,48 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The current user's token</param>
 		/// <param name="buildingId">The building for which you want the layout</param>
 		/// <returns>A string representation of the XML, which describes the layout of the application</returns>
-		private string getUserLayout(Guid userToken, Guid buildingId)
+		private string getUserLayout(Guid userToken, int buildingId)
 		{
-			if (userToken != Guid.Empty)
+			string resultLayout = "";
+
+			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
-				if (buildingId != Guid.Empty)
+				connection.Open();
+				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
+				SqlCommand command = new SqlCommand(query, connection);
+
+				//Validate token
+				string username = command.ExecuteScalar() as String;
+				if (String.IsNullOrWhiteSpace(username))
 				{
-					return @"<?xml version=""1.0""?><XML><Pages><Page id=""1""><Widget id=""0"" x=""12"" y=""12"" /></Page></Pages></XML>";
+					throw new APIException("The provided userToken is invalid or has expired", "userToken");
 				}
 				else
 				{
-					throw new APIException("The provided buildingId is invalid", "buildingId");
+					//get the layout for the user - building combination
+					query = String.Format(@"SELECT	[userBuildingCouple].[screenLayout] FROM [userBuildingCouple]													
+													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE	[user].[username] = '{0}'", username);
+					command = new SqlCommand(query, connection);
+
+					//get the value and store it in the string
+					SqlDataReader reader = command.ExecuteReader();
+					if (reader.HasRows)
+					{
+						while (reader.Read())
+						{
+							resultLayout = reader["screenLayout"].ToString();
+						}
+					}
+					else
+					{
+						throw new APIException("The provided buildingId is invalid", "buildingId");
+					}
 				}
 			}
-			else
-			{
-				throw new APIException("The provided userToken is invalid or expired", "userToken");
-			}
-			//validate token
-			//get the layout for the user - building combination
+
 			//return layout xml as a string
+			return resultLayout;
 		}
 	}
 }

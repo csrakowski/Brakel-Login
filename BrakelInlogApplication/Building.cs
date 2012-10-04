@@ -13,7 +13,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The building id used to identify the building
 		/// </summary>
-		public Guid BuildingID { get; set; }
+		public int BuildingID { get; set; }
 
 		/// <summary>
 		/// The name of the building for human readable context
