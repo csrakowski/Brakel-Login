@@ -238,8 +238,9 @@ namespace BrakelInlogApplication
 									List<Changes> changes = new List<Changes>();
 									changes = makeChangesToGroups(userToken, buildingId, changes);
 									changes.ForEach(
-										i => result += i.ToJSONString()
+										i => result += ("," + i.ToJSONString())
 									);
+									result = "[" + result.Substring(1) + "]";
 								}
 								else
 								{
@@ -266,7 +267,7 @@ namespace BrakelInlogApplication
 			}
 			catch (APIException ex)
 			{
-				result = String.Format(@"{{ ""error"":""{0}"" }}", ex.Message);
+				result = String.Format(@"{{ ""error"":""{0}"" }}", ex.Message.Replace('\n', ' '));
 			}
 			catch (Exception ex)
 			{
@@ -430,7 +431,7 @@ namespace BrakelInlogApplication
 					//get the layout for the user - building combination
 					query = String.Format(@"SELECT	[userBuildingCouple].[screenLayout] FROM [userBuildingCouple]													
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}'", username);
+											WHERE	[user].[username] = '{0}' and [userBuildingCouple].[buildingId] = {1}", username, buildingId);
 					command = new SqlCommand(query, connection);
 
 					//get the value and store it in the string
