@@ -206,7 +206,7 @@
             <param name="userToken">The current user's token</param>
             <returns>The list of Buildings</returns>
         </member>
-        <member name="M:BrakelInlogApplication.AsynchOperation.makeChangesToGroups(System.Guid,System.Guid,System.Collections.Generic.List{BrakelInlogApplication.Changes})">
+        <member name="M:BrakelInlogApplication.AsynchOperation.makeChangesToGroups(System.Guid,System.Int32,System.Collections.Generic.List{BrakelInlogApplication.Changes})">
             <summary>
             Method to iniate making changes to groups
             </summary>
@@ -215,7 +215,7 @@
             <param name="changes">The list of changes you want to commit</param>
             <returns>The list of changes with a boolean value to indicate succes of the operation per change</returns>
         </member>
-        <member name="M:BrakelInlogApplication.AsynchOperation.getUserLayout(System.Guid,System.Guid)">
+        <member name="M:BrakelInlogApplication.AsynchOperation.getUserLayout(System.Guid,System.Int32)">
             <summary>
             Get the current user's screen layout for the selected building
             </summary>

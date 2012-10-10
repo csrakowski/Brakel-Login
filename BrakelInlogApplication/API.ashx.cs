@@ -146,7 +146,7 @@ namespace BrakelInlogApplication
 			_context.Response.ContentType = "application/JSON";
 			String result = "";
 			try
-			{				
+			{
 				string command = _context.Request.QueryString["command"] ?? "";
 				if (!String.IsNullOrWhiteSpace(command))
 				{
@@ -155,10 +155,12 @@ namespace BrakelInlogApplication
 						case "login":
 						{
 							#region Prepare to handle login request
-							string username = _context.Request.QueryString["username"];
+							string username = _context.Request.Form["username"];
+							string hash = _context.Request.Form["hash"];
+							//string username = _context.Request.QueryString["username"];
+							//string hash = _context.Request.QueryString["hash"];
 							if (!String.IsNullOrWhiteSpace(username))
-							{
-								string hash = _context.Request.QueryString["hash"];
+							{								
 								if (!String.IsNullOrWhiteSpace(hash))
 								{
 									Guid userToken = login(username, hash);
@@ -179,7 +181,8 @@ namespace BrakelInlogApplication
 						case "getBuildings":
 						{
 							#region Prepare to handle getBuildings request
-							string userTokenString = _context.Request.QueryString["userToken"];
+							string userTokenString = _context.Request.Form["userToken"];
+							//string userTokenString = _context.Request.QueryString["userToken"];
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
@@ -199,8 +202,10 @@ namespace BrakelInlogApplication
 						case "getLayout":
 						{
 							#region Prepare to handle getLayout request
-							string userTokenString = _context.Request.QueryString["userToken"];
-							string buildingIdString = _context.Request.QueryString["buildingId"];
+							string userTokenString = _context.Request.Form["userToken"];
+							string buildingIdString = _context.Request.Form["buildingId"];
+							//string userTokenString = _context.Request.QueryString["userToken"];
+							//string buildingIdString = _context.Request.QueryString["buildingId"];
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
@@ -225,8 +230,10 @@ namespace BrakelInlogApplication
 						case "changeGroups":
 						{
 							#region Prepare to handle changeGroups request
-							string userTokenString = _context.Request.QueryString["userToken"];
-							string buildingIdString = _context.Request.QueryString["buildingId"];
+							string userTokenString = _context.Request.Form["userToken"];
+							string buildingIdString = _context.Request.Form["buildingId"];
+							//string userTokenString = _context.Request.QueryString["userToken"];
+							//string buildingIdString = _context.Request.QueryString["buildingId"];
 							Guid userToken;
 							if (Guid.TryParse(userTokenString, out userToken))
 							{
