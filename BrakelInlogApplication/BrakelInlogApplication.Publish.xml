@@ -2,11 +2,14 @@
 <publishData>
   <publishProfile publishUrl="E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Publish" deleteExistingFiles="True" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Publish" publishMethod="FileSystem" replaceMatchingFiles="False" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
     <file relUrl="bin/Newtonsoft.Json.dll" publishTime="09/08/2012 03:00:16" />
-    <file relUrl="Web.config" publishTime="10/04/2012 15:02:20" />
+    <file relUrl="Images/2.png" publishTime="10/11/2012 16:20:09" />
+    <file relUrl="Solution Items/createUser.sql" publishTime="10/02/2012 12:21:55" />
+    <file relUrl="Images/1.png" publishTime="10/11/2012 16:20:09" />
+    <file relUrl="Web.config" publishTime="10/11/2012 16:25:23" />
     <file relUrl="API.ashx" publishTime="09/28/2012 10:22:25" />
-    <file relUrl="bin/BrakelInlogApplication.dll" publishTime="10/10/2012 16:10:42" />
-    <file relUrl="bin/BrakelInlogApplication.pdb" publishTime="10/10/2012 16:10:42" />
-    <file relUrl="Images/empty.txt" publishTime="10/04/2012 15:00:36" />
-    <file relUrl="bin/Images/empty.txt" publishTime="10/04/2012 15:00:36" />
+    <file relUrl="bin/BrakelInlogApplication.dll" publishTime="10/11/2012 16:25:21" />
+    <file relUrl="bin/BrakelInlogApplication.pdb" publishTime="10/11/2012 16:25:20" />
+    <file relUrl="Solution Items/invalidateOldTokens.sql" publishTime="10/11/2012 16:00:24" />
+    <file relUrl="bin/BrakelInlogApplication.XML" publishTime="10/11/2012 16:25:20" />
   </publishProfile>
 </publishData>

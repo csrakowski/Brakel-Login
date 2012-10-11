@@ -190,7 +190,9 @@ namespace BrakelInlogApplication
 								buildings.ForEach(
 									i => result += ("," + i.ToJSONString())
 								);
-								result = "[" + result.Substring(1) + "]";
+								if (result.Length > 1)
+									result = result.Substring(1);
+								result = "[" + result + "]";
 							}
 							else
 							{
@@ -247,7 +249,9 @@ namespace BrakelInlogApplication
 									changes.ForEach(
 										i => result += ("," + i.ToJSONString())
 									);
-									result = "[" + result.Substring(1) + "]";
+									if (result.Length > 1)
+										result = result.Substring(1);
+									result = "[" + result + "]";
 								}
 								else
 								{
@@ -274,11 +278,11 @@ namespace BrakelInlogApplication
 			}
 			catch (APIException ex)
 			{
-				result = String.Format(@"{{ ""error"":""{0}"" }}", ex.Message.Replace('\n', ' '));
+				result = String.Format(@"{{ ""error"":""{0}"" }}", ex.Message.Replace('\n', ' ').Replace('\r', ' '));
 			}
 			catch (Exception ex)
 			{
-				result = String.Format(@"{{ ""error"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' '), ex.StackTrace.Replace('\n', ' ').Replace("\\", "\\\\"));
+				result = String.Format(@"{{ ""error"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' ').Replace('\r', ' '), ex.StackTrace.Replace('\n', ' ').Replace('\r', ' ').Replace("\\", "\\\\"));
 			}
 			finally
 			{
@@ -366,7 +370,8 @@ namespace BrakelInlogApplication
 						{
 							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
 							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-							BuildingName = reader["name"].ToString()
+							BuildingName = reader["name"].ToString(),
+							Parent = Int32.Parse(reader["parentId"].ToString())
 						});
 					}
 				}

@@ -26,12 +26,17 @@ namespace BrakelInlogApplication
 		public AccessRole AccessRole { get; set; }
 
 		/// <summary>
+		/// Parent building of the current building, 0 if none
+		/// </summary>
+		public int Parent { get; set; }
+
+		/// <summary>
 		/// Returns a JSON representation of the current object
 		/// </summary>
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""BuildingID"":""{0}"", ""BuildingName"":""{1}"", ""AccessRole"":""{2}"" }}", BuildingID, BuildingName, AccessRole.ToString());
+			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3} }}", BuildingID, BuildingName, AccessRole.ToString(), Parent);
 		}
 
 		/// <summary>

@@ -37,6 +37,11 @@
             The access role of the user in this building
             </summary>
         </member>
+        <member name="P:BrakelInlogApplication.Building.Parent">
+            <summary>
+            Parent building of the current building, 0 if none
+            </summary>
+        </member>
         <member name="T:BrakelInlogApplication.AccessRole">
             <summary>
             Enum for the different access roles
