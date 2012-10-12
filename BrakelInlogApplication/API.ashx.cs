@@ -19,7 +19,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// Initializes a new instance of the BrakelInlogApplication.APIException class.
 		/// </summary>
-		public APIException(): base() { }
+		public APIException() : base() { }
 		/// <summary>
 		///  Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message.
 		/// </summary>
@@ -153,122 +153,122 @@ namespace BrakelInlogApplication
 					switch (command)
 					{
 						case "login":
-						{
-							#region Prepare to handle login request
-							string username = _context.Request.Form["username"];
-							string hash = _context.Request.Form["hash"];
-							//string username = _context.Request.QueryString["username"];
-							//string hash = _context.Request.QueryString["hash"];
-							if (!String.IsNullOrWhiteSpace(username))
-							{								
-								if (!String.IsNullOrWhiteSpace(hash))
+							{
+								#region Prepare to handle login request
+								string username = _context.Request.Form["username"];
+								string hash = _context.Request.Form["hash"];
+								//string username = _context.Request.QueryString["username"];
+								//string hash = _context.Request.QueryString["hash"];
+								if (!String.IsNullOrWhiteSpace(username))
 								{
-									Guid userToken = login(username, hash);
-									result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
+									if (!String.IsNullOrWhiteSpace(hash))
+									{
+										Guid userToken = login(username, hash);
+										result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
+									}
+									else
+									{
+										throw new APIException("No valid passwordhash was provided", "hash");
+									}
 								}
 								else
 								{
-									throw new APIException("No valid passwordhash was provided", "hash");
+									throw new APIException("No valid username was provided", "username");
 								}
+								#endregion
+								break;
 							}
-							else
-							{
-								throw new APIException("No valid username was provided", "username");
-							}
-							#endregion
-							break;
-						}
 						case "getBuildings":
-						{
-							#region Prepare to handle getBuildings request
-							string userTokenString = _context.Request.Form["userToken"];
-							//string userTokenString = _context.Request.QueryString["userToken"];
-							Guid userToken;
-							if (Guid.TryParse(userTokenString, out userToken))
 							{
-								List<Building> buildings = getBuildings(userToken);
-								buildings.ForEach(
-									i => result += ("," + i.ToJSONString())
-								);
-								if (result.Length > 1)
-									result = result.Substring(1);
-								result = "[" + result + "]";
-							}
-							else
-							{
-								throw new APIException("No valid userToken was provided", "userToken");
-							}
-							#endregion
-							break;
-						}
-						case "getLayout":
-						{
-							#region Prepare to handle getLayout request
-							string userTokenString = _context.Request.Form["userToken"];
-							string buildingIdString = _context.Request.Form["buildingId"];
-							//string userTokenString = _context.Request.QueryString["userToken"];
-							//string buildingIdString = _context.Request.QueryString["buildingId"];
-							Guid userToken;
-							if (Guid.TryParse(userTokenString, out userToken))
-							{
-								int buildingId;
-								if (Int32.TryParse(buildingIdString, out buildingId))
+								#region Prepare to handle getBuildings request
+								string userTokenString = _context.Request.Form["userToken"];
+								//string userTokenString = _context.Request.QueryString["userToken"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									string layoutXMLString = getUserLayout(userToken, buildingId);
-									result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
-								}
-								else
-								{
-									throw new APIException("No valid buildingId was provided", "buildingId");
-								}
-							}
-							else
-							{
-								throw new APIException("No valid userToken was provided", "userToken");
-							}
-							#endregion
-							break;
-						}
-						case "changeGroups":
-						{
-							#region Prepare to handle changeGroups request
-							string userTokenString = _context.Request.Form["userToken"];
-							string buildingIdString = _context.Request.Form["buildingId"];
-							//string userTokenString = _context.Request.QueryString["userToken"];
-							//string buildingIdString = _context.Request.QueryString["buildingId"];
-							Guid userToken;
-							if (Guid.TryParse(userTokenString, out userToken))
-							{
-								int buildingId;
-								if (Int32.TryParse(buildingIdString, out buildingId))
-								{
-									string changesString = _context.Request.QueryString["changes"];
-									JObject obj = JObject.Parse(changesString);
-									List<Changes> changes = new List<Changes>();
-									changes = makeChangesToGroups(userToken, buildingId, changes);
-									changes.ForEach(
+									List<Building> buildings = getBuildings(userToken);
+									buildings.ForEach(
 										i => result += ("," + i.ToJSONString())
 									);
 									if (result.Length > 1)
 										result = result.Substring(1);
-									result = "[" + result + "]";
+									result = @"{ ""buildings"": [" + result + "] }";
 								}
 								else
 								{
-									throw new APIException("No valid buildingId was provided", "buildingId");
+									throw new APIException("No valid userToken was provided", "userToken");
 								}
+								#endregion
+								break;
 							}
-							else
+						case "getLayout":
 							{
-								throw new APIException("No valid userToken was provided", "userToken");
+								#region Prepare to handle getLayout request
+								string userTokenString = _context.Request.Form["userToken"];
+								string buildingIdString = _context.Request.Form["buildingId"];
+								//string userTokenString = _context.Request.QueryString["userToken"];
+								//string buildingIdString = _context.Request.QueryString["buildingId"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int buildingId;
+									if (Int32.TryParse(buildingIdString, out buildingId))
+									{
+										string layoutXMLString = getUserLayout(userToken, buildingId);
+										result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
+									}
+									else
+									{
+										throw new APIException("No valid buildingId was provided", "buildingId");
+									}
+								}
+								else
+								{
+									throw new APIException("No valid userToken was provided", "userToken");
+								}
+								#endregion
+								break;
 							}
-							#endregion
-							break;
-						}
+						case "changeGroups":
+							{
+								#region Prepare to handle changeGroups request
+								string userTokenString = _context.Request.Form["userToken"];
+								string buildingIdString = _context.Request.Form["buildingId"];
+								//string userTokenString = _context.Request.QueryString["userToken"];
+								//string buildingIdString = _context.Request.QueryString["buildingId"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int buildingId;
+									if (Int32.TryParse(buildingIdString, out buildingId))
+									{
+										string changesString = _context.Request.QueryString["changes"];
+										JObject obj = JObject.Parse(changesString);
+										List<Changes> changes = new List<Changes>();
+										changes = makeChangesToGroups(userToken, buildingId, changes);
+										changes.ForEach(
+											i => result += ("," + i.ToJSONString())
+										);
+										if (result.Length > 1)
+											result = result.Substring(1);
+										result = @" { ""changes"": [" + result + "] }";
+									}
+									else
+									{
+										throw new APIException("No valid buildingId was provided", "buildingId");
+									}
+								}
+								else
+								{
+									throw new APIException("No valid userToken was provided", "userToken");
+								}
+								#endregion
+								break;
+							}
 						default:
-						{
-							throw new APIException(String.Format("'{0}' is not a valid command", command), "command");
-						}
+							{
+								throw new APIException(String.Format("'{0}' is not a valid command", command), "command");
+							}
 					}
 				}
 				else
@@ -301,10 +301,10 @@ namespace BrakelInlogApplication
 		private Guid login(string username, string passwordHash)
 		{
 			Guid userToken = Guid.Empty;
-			
+
 			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
-			    connection.Open();
+				connection.Open();
 
 				// perform work with connection
 				string query = String.Format("SELECT [hash] FROM [user] WHERE [username] = '{0}'", username);
@@ -318,7 +318,7 @@ namespace BrakelInlogApplication
 					userToken = Guid.NewGuid();
 
 					//register token in db to the user
-					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString());
+					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
 					command = new SqlCommand(query, connection);
 					int result = command.ExecuteNonQuery();
 					if (result < 1)
@@ -377,8 +377,8 @@ namespace BrakelInlogApplication
 				}
 			}
 			//return collection
-			return buildings;			
-		}		
+			return buildings;
+		}
 
 		/// <summary>
 		/// Method to iniate making changes to groups
