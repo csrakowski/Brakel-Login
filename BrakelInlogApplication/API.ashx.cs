@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Xml;
 using Newtonsoft.Json.Linq;
 
-
 namespace BrakelInlogApplication
 {
 	/// <summary>
