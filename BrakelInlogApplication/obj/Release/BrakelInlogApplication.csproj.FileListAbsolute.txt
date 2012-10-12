@@ -3,3 +3,8 @@ E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Brakel-Login\Brak
 E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Brakel-Login\BrakelInlogApplication\obj\Release\BrakelInlogApplication.csprojResolveAssemblyReference.cache
 E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Brakel-Login\BrakelInlogApplication\obj\Release\BrakelInlogApplication.dll
 E:\Bibliotheken\Documents\Visual Studio 2010\Projects\GitRepos\Brakel-Login\BrakelInlogApplication\obj\Release\BrakelInlogApplication.pdb
+C:\Users\Patrick\Documents\GitHub\Brakel-Login\BrakelInlogApplication\bin\BrakelInlogApplication.XML
+C:\Users\Patrick\Documents\GitHub\Brakel-Login\BrakelInlogApplication\bin\BrakelInlogApplication.dll
+C:\Users\Patrick\Documents\GitHub\Brakel-Login\BrakelInlogApplication\bin\BrakelInlogApplication.pdb
+C:\Users\Patrick\Documents\GitHub\Brakel-Login\BrakelInlogApplication\obj\Release\BrakelInlogApplication.dll
+C:\Users\Patrick\Documents\GitHub\Brakel-Login\BrakelInlogApplication\obj\Release\BrakelInlogApplication.pdb
