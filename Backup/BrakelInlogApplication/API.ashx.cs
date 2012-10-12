@@ -318,7 +318,7 @@ namespace BrakelInlogApplication
 					userToken = Guid.NewGuid();
 
 					//register token in db to the user
-					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString());
 					command = new SqlCommand(query, connection);
 					int result = command.ExecuteNonQuery();
 					if (result < 1)
