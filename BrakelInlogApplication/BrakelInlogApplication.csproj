@@ -78,6 +78,8 @@
     <Compile Include="API.ashx.cs">
       <DependentUpon>API.ashx</DependentUpon>
     </Compile>
+    <Compile Include="APIHelper.cs" />
+    <Compile Include="BackgroundPoller.cs" />
     <Compile Include="Changes.cs" />
     <Compile Include="ConstantHelper.cs" />
     <Compile Include="Building.cs" />
@@ -86,7 +88,12 @@
   <ItemGroup>
     <Content Include="API.ashx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PushNotification\PushNotifications.csproj">
+      <Project>{A38C2E08-E27C-4D19-940A-694E94F253A9}</Project>
+      <Name>PushNotifications</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

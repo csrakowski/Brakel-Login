@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrakelInlogApplication", "BrakelInlogApplication\BrakelInlogApplication.csproj", "{7B4CAFE2-01E1-4E51-8607-9B705756E778}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushNotifications", "PushNotification\PushNotifications.csproj", "{A38C2E08-E27C-4D19-940A-694E94F253A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{7B4CAFE2-01E1-4E51-8607-9B705756E778}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B4CAFE2-01E1-4E51-8607-9B705756E778}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B4CAFE2-01E1-4E51-8607-9B705756E778}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A38C2E08-E27C-4D19-940A-694E94F253A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A38C2E08-E27C-4D19-940A-694E94F253A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A38C2E08-E27C-4D19-940A-694E94F253A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A38C2E08-E27C-4D19-940A-694E94F253A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
