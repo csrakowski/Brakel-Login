@@ -198,6 +198,37 @@ namespace BrakelInlogApplication
 								#endregion
 								break;
 							}
+						case "getFloors":
+							{
+								#region Prepare to handle getFloors request
+								string userTokenString = _context.Request.Form["userToken"];
+								string buildingIdString = _context.Request.Form["buildingId"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int buildingId;
+									if (Int32.TryParse(buildingIdString, out buildingId))
+									{
+										List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId);
+										floors.ForEach(
+											i => result += ("," + i.ToJSONString())
+										);
+										if (result.Length > 1)
+											result = result.Substring(1);
+										result = @"{ ""floors"": [" + result + "] }";
+									}
+									else
+									{
+										throw new APIException("No valid buildingId was provided", "buildingId");
+									}
+								}
+								else
+								{
+									throw new APIException("No valid userToken was provided", "userToken");
+								}
+								#endregion
+								break;
+							}
 						case "getLayout":
 							{
 								#region Prepare to handle getLayout request

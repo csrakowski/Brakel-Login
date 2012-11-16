@@ -82,6 +82,8 @@
     <Compile Include="Changes.cs" />
     <Compile Include="ConstantHelper.cs" />
     <Compile Include="Building.cs" />
+    <Compile Include="Floor.cs" />
+    <Compile Include="Room.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +94,9 @@
       <Project>{A38C2E08-E27C-4D19-940A-694E94F253A9}</Project>
       <Name>PushNotifications</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\web.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

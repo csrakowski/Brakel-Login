@@ -216,5 +216,53 @@ namespace BrakelInlogApplication
 			string message = String.Format(@"{{ ""building"":{0}, ""result"":{1} }}", buildingId, json);
 			PushNotification.SendPushNotification(deviceID, message);
 		}
+
+		public List<Floor> getFloors(Guid userToken, int buildingId)
+		{
+			List<Floor> floors = new List<Floor>();
+
+			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			{
+				connection.Open();
+				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
+				SqlCommand command = new SqlCommand(query, connection);
+
+				//Validate token
+				string username = command.ExecuteScalar() as String;
+				if (String.IsNullOrWhiteSpace(username))
+				{
+					throw new APIException("The provided userToken is invalid or has expired", "userToken");
+				}
+				else
+				{
+					//join buildings on users rights
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
+													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
+													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
+					command = new SqlCommand(query, connection);
+
+					//Fill collection
+					SqlDataReader reader = command.ExecuteReader();
+					while (reader.Read())
+					{
+						floors.Add(new Floor()
+						{
+							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingName = reader["name"].ToString(),
+							Parent = Int32.Parse(reader["parentId"].ToString())
+						});
+					}
+				}
+			}
+			//return collection
+			return floors;
+		}
+
+		public List<Room> getRooms(Guid userToken, int floorId)
+		{
+			return null;
+		}
 	}
 }
