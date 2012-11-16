@@ -21,6 +21,9 @@ namespace BrakelInlogApplication
 		/// </summary>
 		public static APIHelper Instance { get { return _instance; } }
 
+		/// <summary>
+		/// Private to prevent instantiation
+		/// </summary>
 		private APIHelper()
 		{
 			//Register event handler for background polling
