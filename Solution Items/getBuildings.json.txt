@@ -1,7 +1,7 @@
 -aantal verdiepingen van het gebouw  				(Array van child element 'floors' tevens van type building)
 -een plaatje van het gebouw							(images/<buildingId>.png)
--een plaatje van elke verdieping					(images/<buildingId>.png)
--een array van elke verdieping (floors) met daarin: 
+-een plaatje van elke verdieping 					(images/<buildingId>.png)
+-een array van elke verdieping met daarin: 			(‘rooms’ array)
 			- de locaties van de knoppen,			(x, y)
 			- de grootte op de plattegrond,			(width, height)
 			- of de knop enabled of disabled is 	(enabled true/false)
