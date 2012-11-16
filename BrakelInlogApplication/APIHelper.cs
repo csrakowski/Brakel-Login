@@ -217,7 +217,14 @@ namespace BrakelInlogApplication
 			PushNotification.SendPushNotification(deviceID, message);
 		}
 
-		public List<Floor> getFloors(Guid userToken, int buildingId)
+		/// <summary>
+		/// Get all floors in the building and the accessrights the user has in those rooms
+		/// </summary>
+		/// <param name="userToken">The current user's token</param>
+		/// <param name="buildingId">The building id</param>
+		/// <param name="getRoomsRecursivly">boolean to indicate if rooms should be retrieved recursivly, or ignored</param>
+		/// <returns>The list of Floors</returns>
+		public List<Floor> getFloors(Guid userToken, int buildingId, bool getRoomsRecursivly)
 		{
 			List<Floor> floors = new List<Floor>();
 
@@ -246,13 +253,18 @@ namespace BrakelInlogApplication
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						floors.Add(new Floor()
+						Floor floor = new Floor()
 						{
 							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
 							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
 							BuildingName = reader["name"].ToString(),
 							Parent = Int32.Parse(reader["parentId"].ToString())
-						});
+						};
+						if (getRoomsRecursivly)
+						{
+							floor.Rooms = getRooms(userToken, floor.BuildingID);
+						}
+						floors.Add(floor);
 					}
 				}
 			}
@@ -260,9 +272,53 @@ namespace BrakelInlogApplication
 			return floors;
 		}
 
+		/// <summary>
+		/// Get all rooms on a certain floor
+		/// </summary>
+		/// <param name="userToken">The current user's token</param>
+		/// <param name="floorId">The floor id</param>
+		/// <returns>The list of rooms</returns>
 		public List<Room> getRooms(Guid userToken, int floorId)
 		{
-			return null;
+			List<Room> rooms = new List<Room>();
+
+			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			{
+				connection.Open();
+				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
+				SqlCommand command = new SqlCommand(query, connection);
+
+				//Validate token
+				string username = command.ExecuteScalar() as String;
+				if (String.IsNullOrWhiteSpace(username))
+				{
+					throw new APIException("The provided userToken is invalid or has expired", "userToken");
+				}
+				else
+				{
+					//join buildings on users rights
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
+													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
+													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, floorId);
+					command = new SqlCommand(query, connection);
+
+					//Fill collection
+					SqlDataReader reader = command.ExecuteReader();
+					while (reader.Read())
+					{
+						//rooms.Add(new Room()
+						//{
+						//    AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+						//    BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+						//    BuildingName = reader["name"].ToString(),
+						//    Parent = Int32.Parse(reader["parentId"].ToString())
+						//});
+					}
+				}
+			}
+			//return collection
+			return rooms;
 		}
 	}
 }

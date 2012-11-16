@@ -203,13 +203,14 @@ namespace BrakelInlogApplication
 								#region Prepare to handle getFloors request
 								string userTokenString = _context.Request.Form["userToken"];
 								string buildingIdString = _context.Request.Form["buildingId"];
+								bool getRooms = Boolean.Parse(_context.Request.Form["buildingId"] ?? Boolean.FalseString);
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId);
+										List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId, getRooms);
 										floors.ForEach(
 											i => result += ("," + i.ToJSONString())
 										);
@@ -220,6 +221,37 @@ namespace BrakelInlogApplication
 									else
 									{
 										throw new APIException("No valid buildingId was provided", "buildingId");
+									}
+								}
+								else
+								{
+									throw new APIException("No valid userToken was provided", "userToken");
+								}
+								#endregion
+								break;
+							}
+						case "getRooms":
+							{
+								#region Prepare to handle getFloors request
+								string userTokenString = _context.Request.Form["userToken"];
+								string floorIdString = _context.Request.Form["floorId"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int floorId;
+									if (Int32.TryParse(floorIdString, out floorId))
+									{
+										List<Room> rooms = APIHelper.Instance.getRooms(userToken, floorId);
+										rooms.ForEach(
+											i => result += ("," + i.ToJSONString())
+										);
+										if (result.Length > 1)
+											result = result.Substring(1);
+										result = @"{ ""rooms"": [" + result + "] }";
+									}
+									else
+									{
+										throw new APIException("No valid floorId was provided", "floorId");
 									}
 								}
 								else
