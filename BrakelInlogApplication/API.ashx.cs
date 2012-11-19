@@ -209,13 +209,13 @@ namespace BrakelInlogApplication
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId);
+										/*List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId);
 										floors.ForEach(
 											i => result += ("," + i.ToJSONString())
 										);
 										if (result.Length > 1)
 											result = result.Substring(1);
-										result = @"{ ""floors"": [" + result + "] }";
+										result = @"{ ""floors"": [" + result + "] }";*/
 									}
 									else
 									{
@@ -258,17 +258,20 @@ namespace BrakelInlogApplication
 						case "changeGroups":
 							{
 								#region Prepare to handle changeGroups request
-								string userTokenString = _context.Request.Form["userToken"];
-								string buildingIdString = _context.Request.Form["buildingId"];
+								string userTokenString = Guid.NewGuid().ToString(); //_context.Request.Form["userToken"];
+								string buildingIdString = "1"; //_context.Request.Form["buildingId"];
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										string changesString = _context.Request.Form["changes"];
-										JObject obj = JObject.Parse(changesString);
+										//string changesString = _context.Request.Form["changes"];
+										//JObject obj = JObject.Parse(changesString);
 										List<Changes> changes = new List<Changes>();
+											changes.Add(new Changes() { GroupID = 1, ChangeValue = 1 });
+											changes.Add(new Changes() { GroupID = 2, ChangeValue = 1 });
+											changes.Add(new Changes() { GroupID = 3, ChangeValue = 0 });
 										changes = APIHelper.Instance.makeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())

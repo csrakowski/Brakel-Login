@@ -17,5 +17,12 @@ namespace BrakelInlogApplication
 				return ConfigurationManager.ConnectionStrings["BasisDB"].ConnectionString ?? "";
 			}
 		}
+		public static string TestBuilding
+		{
+			get
+			{
+				return ConfigurationManager.AppSettings["TestBuilding"] ?? "";
+			}
+		}
 	}
 }

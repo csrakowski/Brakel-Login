@@ -4,6 +4,11 @@ using System.Linq;
 using System.Web;
 using PushNotifications;
 using System.Data.SqlClient;
+using System.Net;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using System.Diagnostics;
+using System.IO;
 
 namespace BrakelInlogApplication
 {
@@ -131,10 +136,57 @@ namespace BrakelInlogApplication
 			{
 				if (buildingId != 0)
 				{
-					//Send to building, wait for initial result
-					foreach (var item in changes)
+					string requestBody = "";
+					changes.ForEach(
+						i => requestBody += ("," + i.ToJSONString())
+						);
+					if (requestBody.Length > 1)
+						requestBody = requestBody.Substring(1);
+					requestBody = @" { ""changes"": [" + requestBody + "] }";
+
+					//Get ip from database based on building id
+					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(ConstantHelper.TestBuilding);
+					request.Method = "POST";
+
+					byte[] byte1 = Encoding.ASCII.GetBytes (requestBody);
+					request.ContentType = "application/json";
+					request.ContentLength = byte1.Length;
+					Stream newStream = request.GetRequestStream();
+					newStream.Write (byte1, 0, byte1.Length);
+
+					JObject result = null;
+					try 
 					{
-						item.ChangeStatus = true;
+						WebResponse response = request.GetResponse();
+
+						var str = response.GetResponseStream();
+						byte[] buffer = new byte[str.Length];
+						str.Read(buffer, 0, (int)str.Length);
+
+						string resultString = Encoding.ASCII.GetString(buffer);
+						Debug.WriteLine(resultString);
+						result = JObject.Parse(resultString);
+					}
+					catch(Exception ex)
+					{
+						Debug.WriteLine(ex.Message);
+						foreach (var item in changes)
+						{
+							item.ChangeStatus = false;
+						}
+						return changes;
+					}
+
+					JArray changesArray = result["changes"] as JArray;
+
+					//parse json and update changes
+					foreach (var item in changesArray)
+					{
+						var ch = changes.Where(i => i.GroupID.ToString() == item["GroupID"].ToString()).FirstOrDefault();
+						if(ch != default(Changes))
+						{
+							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString());
+						}
 					}
 
 					//Start background polling					
@@ -217,7 +269,7 @@ namespace BrakelInlogApplication
 			PushNotification.SendPushNotification(deviceID, message);
 		}
 
-		public List<Floor> getFloors(Guid userToken, int buildingId)
+		/*public List<Floor> getFloors(Guid userToken, int buildingId)
 		{
 			List<Floor> floors = new List<Floor>();
 
@@ -263,6 +315,6 @@ namespace BrakelInlogApplication
 		public List<Room> getRooms(Guid userToken, int floorId)
 		{
 			return null;
-		}
+		}*/
 	}
 }
