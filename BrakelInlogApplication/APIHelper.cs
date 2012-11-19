@@ -136,28 +136,34 @@ namespace BrakelInlogApplication
 			{
 				if (buildingId != 0)
 				{
+					#region Make HTTP Request
 					string requestBody = "";
 					changes.ForEach(
 						i => requestBody += ("," + i.ToJSONString())
-						);
+					);
 					if (requestBody.Length > 1)
 						requestBody = requestBody.Substring(1);
-					requestBody = @" { ""changes"": [" + requestBody + "] }";
+					requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
 
 					//Get ip from database based on building id
-					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(ConstantHelper.TestBuilding);
+					string targetBuilding = ConstantHelper.TestBuilding;
+
+					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(targetBuilding);
 					request.Method = "POST";
+					request.Timeout = (5 * 60 * 1000); // 5 seconds
+					request.KeepAlive = false;
+					request.SendChunked = false;
 
 					byte[] byte1 = Encoding.ASCII.GetBytes (requestBody);
 					request.ContentType = "application/json";
 					request.ContentLength = byte1.Length;
 					Stream newStream = request.GetRequestStream();
 					newStream.Write (byte1, 0, byte1.Length);
-
+					#endregion
 					JObject result = null;
 					try 
 					{
-						WebResponse response = request.GetResponse();
+						HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
 						var str = response.GetResponseStream();
 						byte[] buffer = new byte[str.Length];
@@ -185,10 +191,10 @@ namespace BrakelInlogApplication
 						var ch = changes.Where(i => i.GroupID.ToString() == item["GroupID"].ToString()).FirstOrDefault();
 						if(ch != default(Changes))
 						{
-							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString());
+							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString);
 						}
 					}
-
+					 
 					//Start background polling					
 					BackgroundPoller.Instance.StartPollingBuilding(userToken, buildingId);
 
@@ -265,8 +271,8 @@ namespace BrakelInlogApplication
 		public static void OnPollingResult(Guid userToken, int buildingId, string json)
 		{
 			string deviceID = ""; //get from database based on userToken
-			string message = String.Format(@"{{ ""building"":{0}, ""result"":{1} }}", buildingId, json);
-			PushNotification.SendPushNotification(deviceID, message);
+			string message = String.Format(@"{{ ""building"":{0}, ""changes"": {1} }}", buildingId, json);
+			//PushNotification.SendPushNotification(deviceID, message);
 		}
 
 		/*public List<Floor> getFloors(Guid userToken, int buildingId)

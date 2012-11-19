@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Net;
+using System.Text;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
+using System.Threading;
 
 namespace BrakelInlogApplication
 {
@@ -41,11 +47,66 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="buildingId">The building to poll</param>
-		public void StartPollingBuilding(Guid userToken, int buildingId)
+		public void StartPollingBuilding (Guid userToken, int buildingId)
 		{
-			//TODO: Implement
-			string json = String.Format(@"{{ ""building"":{0}, ""changes"":""{1}"" }}", buildingId, true);
-			OnResultChanged.Invoke(userToken, buildingId, json);
+			bool notDone = true;
+			while (notDone) {
+				Thread.Sleep(60 * 60 * 1000); // 60 seconds
+
+				#region Make HTTP Request
+				string requestBody = "";
+				if (requestBody.Length > 1)
+					requestBody = requestBody.Substring (1);
+				requestBody = @"{ ""command"": ""progress"" }\r\n\r\n";
+			
+				//Get ip from database based on building id
+				string targetBuilding = ConstantHelper.TestBuilding;
+			
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create (targetBuilding);
+				request.Method = "POST";
+				request.Timeout = (5 * 60 * 1000); // 5 seconds
+				request.KeepAlive = false;
+				request.SendChunked = false;
+			
+				byte[] byte1 = Encoding.ASCII.GetBytes (requestBody);
+				request.ContentType = "application/json";
+				request.ContentLength = byte1.Length;
+				Stream newStream = request.GetRequestStream ();
+				newStream.Write (byte1, 0, byte1.Length);
+				#endregion
+				JObject result = null;
+				try {
+					HttpWebResponse response = (HttpWebResponse)request.GetResponse ();
+				
+					var str = response.GetResponseStream ();
+					byte[] buffer = new byte[str.Length];
+					str.Read (buffer, 0, (int)str.Length);
+				
+					string resultString = Encoding.ASCII.GetString (buffer);
+					Debug.WriteLine (resultString);
+					result = JObject.Parse (resultString);
+				} catch (Exception ex) {
+					Debug.WriteLine (ex.Message);
+				}
+			
+				if(result != null)
+				{
+					JArray changesArray = result ["changes"] as JArray;
+					if(changesArray.Count == 0) {
+						notDone = false;
+					} else {
+						JArray resultArray = new JArray ();
+						foreach (var item in changesArray) {
+							if (Boolean.Parse (item ["ChangeStatus"].ToString () ?? Boolean.FalseString)) {
+								resultArray.Add (item);
+							}
+						}
+						if (resultArray.Count > 0) {
+							OnResultChanged.Invoke (userToken, buildingId, resultArray.ToString ());
+						}
+					}
+				}
+			}
 		}
 	}
 }
