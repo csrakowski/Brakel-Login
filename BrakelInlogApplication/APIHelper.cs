@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Web;
 using Newtonsoft.Json.Linq;
-using PushNotifications;
-using System.Data.SqlClient;
 
 namespace BrakelInlogApplication
 {
@@ -20,11 +18,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The private instance for easy instantiation
 		/// </summary>
-		private static APIHelper _instance = new APIHelper();
-		/// <summary>
-		/// The Instance of this class
-		/// </summary>
-		public static APIHelper Instance { get { return _instance; } }
+		private static readonly APIHelper _instance = new APIHelper();
 
 		/// <summary>
 		/// Private to prevent instantiation
@@ -33,6 +27,14 @@ namespace BrakelInlogApplication
 		{
 			//Register event handler for background polling
 			BackgroundPoller.Instance.OnResultChanged += OnPollingResult;
+		}
+
+		/// <summary>
+		/// The Instance of this class
+		/// </summary>
+		public static APIHelper Instance
+		{
+			get { return _instance; }
 		}
 
 		/// <summary>
@@ -45,14 +47,14 @@ namespace BrakelInlogApplication
 		{
 			Guid userToken = Guid.Empty;
 
-			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 
 				// perform work with connection
 				string query = String.Format("SELECT [hash] FROM [user] WHERE [username] = '{0}'", username);
-				SqlCommand command = new SqlCommand(query, connection);
-				string sqlHash = command.ExecuteScalar() as String;
+				var command = new SqlCommand(query, connection);
+				var sqlHash = command.ExecuteScalar() as String;
 
 				//validate credentials
 				if (passwordHash.Equals(sqlHash, StringComparison.OrdinalIgnoreCase))
@@ -61,7 +63,8 @@ namespace BrakelInlogApplication
 					userToken = Guid.NewGuid();
 
 					//register token in db to the user
-					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')", username, userToken, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')",
+					                      username, userToken, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
 					command = new SqlCommand(query, connection);
 					int result = command.ExecuteNonQuery();
 					if (result < 1)
@@ -74,7 +77,7 @@ namespace BrakelInlogApplication
 			//return id
 			return userToken;
 		}
-		
+
 		/// <summary>
 		/// Returns a list of buildngs which the current user can see, and the permissions he has in those buildings
 		/// </summary>
@@ -82,16 +85,16 @@ namespace BrakelInlogApplication
 		/// <returns>The list of Buildings</returns>
 		public List<Building> GetBuildings(Guid userToken)
 		{
-			List<Building> buildings = new List<Building>();
+			var buildings = new List<Building>();
 
-			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
-				SqlCommand command = new SqlCommand(query, connection);
+				var command = new SqlCommand(query, connection);
 
 				//Validate token
-				string username = command.ExecuteScalar() as String;
+				var username = command.ExecuteScalar() as String;
 				if (String.IsNullOrWhiteSpace(username))
 				{
 					throw new APIException("The provided userToken is invalid or has expired", "userToken");
@@ -109,13 +112,13 @@ namespace BrakelInlogApplication
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						buildings.Add(new Building()
-						{
-							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-							BuildingName = reader["name"].ToString(),
-							Parent = Int32.Parse(reader["parentId"].ToString())
-						});
+						buildings.Add(new Building
+							              {
+								              AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+								              BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+								              BuildingName = reader["name"].ToString(),
+								              Parent = Int32.Parse(reader["parentId"].ToString())
+							              });
 					}
 				}
 			}
@@ -137,10 +140,11 @@ namespace BrakelInlogApplication
 				if (buildingId != 0)
 				{
 					#region Make HTTP Request
+
 					string requestBody = "";
 					changes.ForEach(
 						i => requestBody += ("," + i.ToJSONString())
-					);
+						);
 					if (requestBody.Length > 1)
 						requestBody = requestBody.Substring(1);
 					requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
@@ -148,9 +152,9 @@ namespace BrakelInlogApplication
 					//Get ip from database based on building id
 					string targetBuilding = ConstantHelper.TestBuilding;
 
-					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(targetBuilding);
+					var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
 					request.Method = "POST";
-					request.Timeout = (5 * 60 * 1000); // 5 seconds
+					request.Timeout = (5*60*1000); // 5 seconds
 					request.KeepAlive = false;
 					request.SendChunked = false;
 
@@ -159,15 +163,17 @@ namespace BrakelInlogApplication
 					request.ContentLength = byte1.Length;
 					Stream newStream = request.GetRequestStream();
 					newStream.Write(byte1, 0, byte1.Length);
+
 					#endregion
+
 					JObject result = null;
 					try
 					{
-						HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+						var response = (HttpWebResponse) request.GetResponse();
 
-						var str = response.GetResponseStream();
-						byte[] buffer = new byte[str.Length];
-						str.Read(buffer, 0, (int)str.Length);
+						Stream str = response.GetResponseStream();
+						var buffer = new byte[str.Length];
+						str.Read(buffer, 0, (int) str.Length);
 
 						string resultString = Encoding.ASCII.GetString(buffer);
 						Debug.WriteLine(resultString);
@@ -176,19 +182,19 @@ namespace BrakelInlogApplication
 					catch (Exception ex)
 					{
 						Debug.WriteLine(ex.Message);
-						foreach (var item in changes)
+						foreach (Changes item in changes)
 						{
 							item.ChangeStatus = false;
 						}
 						return changes;
 					}
 
-					JArray changesArray = result["changes"] as JArray;
+					var changesArray = result["changes"] as JArray;
 
 					//parse json and update changes
-					foreach (var item in changesArray)
+					foreach (JToken item in changesArray)
 					{
-						var ch = changes.FirstOrDefault(i => i.GroupID.ToString() == item["GroupID"].ToString());
+						Changes ch = changes.FirstOrDefault(i => i.GroupID.ToString() == item["GroupID"].ToString());
 						if (ch != default(Changes))
 						{
 							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString);
@@ -222,14 +228,14 @@ namespace BrakelInlogApplication
 		{
 			string resultLayout = "";
 
-			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
-				SqlCommand command = new SqlCommand(query, connection);
+				var command = new SqlCommand(query, connection);
 
 				//Validate token
-				string username = command.ExecuteScalar() as String;
+				var username = command.ExecuteScalar() as String;
 				if (String.IsNullOrWhiteSpace(username))
 				{
 					throw new APIException("The provided userToken is invalid or has expired", "userToken");
@@ -239,7 +245,8 @@ namespace BrakelInlogApplication
 					//get the layout for the user - building combination
 					query = String.Format(@"SELECT	[userBuildingCouple].[screenLayout] FROM [userBuildingCouple]													
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [userBuildingCouple].[buildingId] = {1}", username, buildingId);
+											WHERE	[user].[username] = '{0}' and [userBuildingCouple].[buildingId] = {1}",
+					                      username, buildingId);
 					command = new SqlCommand(query, connection);
 
 					//get the value and store it in the string
@@ -284,16 +291,16 @@ namespace BrakelInlogApplication
 		/// <returns>The list of Floors</returns>
 		public List<Floor> GetFloors(Guid userToken, int buildingId, bool getRoomsRecursivly)
 		{
-			List<Floor> floors = new List<Floor>();
+			var floors = new List<Floor>();
 
-			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
-				SqlCommand command = new SqlCommand(query, connection);
+				var command = new SqlCommand(query, connection);
 
 				//Validate token
-				string username = command.ExecuteScalar() as String;
+				var username = command.ExecuteScalar() as String;
 				if (String.IsNullOrWhiteSpace(username))
 				{
 					throw new APIException("The provided userToken is invalid or has expired", "userToken");
@@ -304,20 +311,21 @@ namespace BrakelInlogApplication
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
 													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username,
+					                      buildingId);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						Floor floor = new Floor()
-						{
-							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-							BuildingName = reader["name"].ToString(),
-							Parent = Int32.Parse(reader["parentId"].ToString())
-						};
+						var floor = new Floor
+							            {
+								            AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+								            BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+								            BuildingName = reader["name"].ToString(),
+								            Parent = Int32.Parse(reader["parentId"].ToString())
+							            };
 						if (getRoomsRecursivly)
 						{
 							floor.Rooms = GetRooms(userToken, floor.BuildingID);
@@ -338,16 +346,16 @@ namespace BrakelInlogApplication
 		/// <returns>The list of rooms</returns>
 		public List<Room> GetRooms(Guid userToken, int floorId)
 		{
-			List<Room> rooms = new List<Room>();
+			var rooms = new List<Room>();
 
-			using (SqlConnection connection = new SqlConnection(ConstantHelper.ConnectionString))
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
-				SqlCommand command = new SqlCommand(query, connection);
+				var command = new SqlCommand(query, connection);
 
 				//Validate token
-				string username = command.ExecuteScalar() as String;
+				var username = command.ExecuteScalar() as String;
 				if (String.IsNullOrWhiteSpace(username))
 				{
 					throw new APIException("The provided userToken is invalid or has expired", "userToken");
@@ -358,7 +366,8 @@ namespace BrakelInlogApplication
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
 													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, floorId);
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username,
+					                      floorId);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection

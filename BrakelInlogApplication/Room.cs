@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrakelInlogApplication
 {
@@ -61,8 +58,10 @@ namespace BrakelInlogApplication
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""RoomID"":{0}, ""RoomName"":""{1}"", ""BuildingID"":""{2}"", ""X"":""{3}"", ""Y"":""{4}"", ""Width"":""{5}"", ""height"":""{6}"", ""Enabled"":""{7}"", ""HasAlarm"":""{8}"" }}", RoomID, RoomName, BuildingID, XCoordinate, YCoordinate, Width, Height, IsEnabled, HasAlarmValue);
+			return
+				String.Format(
+					@"{{ ""RoomID"":{0}, ""RoomName"":""{1}"", ""BuildingID"":""{2}"", ""X"":""{3}"", ""Y"":""{4}"", ""Width"":""{5}"", ""height"":""{6}"", ""Enabled"":""{7}"", ""HasAlarm"":""{8}"" }}",
+					RoomID, RoomName, BuildingID, XCoordinate, YCoordinate, Width, Height, IsEnabled, HasAlarmValue);
 		}
-			
-	}	
+	}
 }

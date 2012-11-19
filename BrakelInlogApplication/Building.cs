@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrakelInlogApplication
 {
@@ -35,8 +32,9 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
-		{						
-			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3} }}", BuildingID, BuildingName, AccessRole.ToString(), Parent);
+		{
+			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3} }}",
+			                     BuildingID, BuildingName, AccessRole.ToString(), Parent);
 		}
 
 		/// <summary>
@@ -49,17 +47,17 @@ namespace BrakelInlogApplication
 			switch (rightsName)
 			{
 				case "Administrator":
-				{
-					return AccessRole.Administrator;
-				}
+					{
+						return AccessRole.Administrator;
+					}
 				case "ReadOnly":
-				{
-					return AccessRole.ReadOnly;
-				}
+					{
+						return AccessRole.ReadOnly;
+					}
 				default:
-				{
-					return AccessRole.None;
-				}
+					{
+						return AccessRole.None;
+					}
 			}
 		}
 	}
@@ -83,5 +81,5 @@ namespace BrakelInlogApplication
 		/// None means the user has no rights in this building, buildings with these rights should not be shown in the list
 		/// </summary>
 		None
-	}	
+	}
 }

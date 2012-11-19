@@ -12,10 +12,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		public static string ConnectionString
 		{
-			get
-			{
-				return ConfigurationManager.ConnectionStrings["BasisDB"].ConnectionString ?? "";
-			}
+			get { return ConfigurationManager.ConnectionStrings["BasisDB"].ConnectionString ?? ""; }
 		}
 
 		/// <summary>
@@ -23,10 +20,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		public static string TestBuilding
 		{
-			get
-			{
-				return ConfigurationManager.AppSettings["TestBuilding"] ?? "";
-			}
+			get { return ConfigurationManager.AppSettings["TestBuilding"] ?? ""; }
 		}
 	}
 }

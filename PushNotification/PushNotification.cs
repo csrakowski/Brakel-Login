@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PushNotifications
 {
@@ -13,9 +10,8 @@ namespace PushNotifications
 		/// <summary>
 		/// Private constructor, prevent instantiation
 		/// </summary>
-		private PushNotification ()
+		private PushNotification()
 		{
-
 		}
 
 		/// <summary>
@@ -23,7 +19,7 @@ namespace PushNotifications
 		/// </summary>
 		/// <param name="deviceID">The deviceID of the device the notification needs to be send to</param>
 		/// <param name="message">The message that needs to be send</param>
-		/// <returns></returns>
+		/// <returns>Boolean indicating success</returns>
 		public static bool SendPushNotification(string deviceID, string message)
 		{
 			//bool status = true;

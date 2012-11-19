@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace BrakelInlogApplication
 {
@@ -22,16 +20,16 @@ namespace BrakelInlogApplication
 		public new String ToJSONString()
 		{
 			string result = base.ToJSONString();
-			string ArrayJSON = "";
+			string arrayJSON = "";
 			Rooms.ForEach(
-				r => ArrayJSON += ("," + r.ToJSONString())
-			);
-			if (ArrayJSON.Length > 0)
-				ArrayJSON = ArrayJSON.Substring(1);
+				r => arrayJSON += ("," + r.ToJSONString())
+				);
+			if (arrayJSON.Length > 0)
+				arrayJSON = arrayJSON.Substring(1);
 
 			result = result.Substring(0, result.Length - 2);
 
-			result = String.Format(@"{0}, ""Rooms"":[{1}]}}", result, ArrayJSON);
+			result = String.Format(@"{0}, ""Rooms"":[{1}]}}", result, arrayJSON);
 			return result;
 		}
 	}
