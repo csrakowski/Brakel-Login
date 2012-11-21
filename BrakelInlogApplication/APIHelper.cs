@@ -321,12 +321,12 @@ namespace BrakelInlogApplication
 					while (reader.Read())
 					{
 						var floor = new Floor
-							            {
-								            AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-								            BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-								            BuildingName = reader["name"].ToString(),
-								            Parent = Int32.Parse(reader["parentId"].ToString())
-							            };
+						{
+							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingName = reader["name"].ToString(),
+							Parent = Int32.Parse(reader["parentId"].ToString())
+						};
 						if (getRoomsRecursivly)
 						{
 							floor.Rooms = GetRooms(userToken, floor.BuildingID);
