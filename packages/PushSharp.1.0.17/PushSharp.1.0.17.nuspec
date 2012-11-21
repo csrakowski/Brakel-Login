@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>PushSharp</id>
+    <version>1.0.17</version>
+    <title>PushSharp</title>
+    <authors>Redth</authors>
+    <owners>Redth</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+    <projectUrl>https://github.com/Redth/PushSharp</projectUrl>
+    <iconUrl>https://github.com/Redth/PushSharp/raw/master/Resources/PushSharp-Icon-NuGet-Small.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS &amp; PassKit), Mac OSX (Mountain Lion+), Android (GCM/C2DM), Windows Phone 7/8, Windows 8, and Blackberry devices!</description>
+    <summary>A server-side library for sending Push Notifications to iOS (iPhone/iPad APNS &amp; PassKit), Mac OSX (Mountain Lion+), Android (GCM/C2DM), Windows Phone 7/8, Windows 8, and Blackberry devices!</summary>
+    <releaseNotes>- Added detection for MDM certificates in APNS certificate checking
+- Added ctor parameter to disable APNS certificate checking
+- Added fluent API for GCM for creating a notification for multiple device registration Id's - .ForDeviceRegistrationIds(params string[] deviceRegistrationIds)
+- Added methods to override the endpoints for APNS for some advanced proxying scenarios</releaseNotes>
+    <copyright>2012 Redth</copyright>
+    <language>en-US</language>
+    <tags>APN, APNS, GCM, C2DM, PAP, iOS, Android, iPad, iPhone, Push, Push Notifications, Google Cloud, Cloud Messaging, OSX, Mac, Windows 8, Windows, Desktop, WP8, WP7, WindowsPhone, Phone, Phone 7, Mango, PassKit</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="4.5.7" />
+    </dependencies>
+  </metadata>
+</package>
