@@ -22,5 +22,13 @@ namespace BrakelInlogApplication
 		{
 			get { return ConfigurationManager.AppSettings["TestBuilding"] ?? ""; }
 		}
+
+		/// <summary>
+		/// Device id of the Test iPad (Development)
+		/// </summary>
+		public static string TestIPad
+		{
+			get { return ConfigurationManager.AppSettings["TestIPad"] ?? ""; }
+		}		
 	}
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using PushNotifications;
 
 namespace BrakelInlogApplication
 {
@@ -277,9 +278,9 @@ namespace BrakelInlogApplication
 		/// <param name="json">The result in JSON format</param>
 		public static void OnPollingResult(Guid userToken, int buildingId, string json)
 		{
-			string deviceID = ""; //get from database based on userToken
+			string deviceID = ConstantHelper.TestIPad; //get from database based on userToken
 			string message = String.Format(@"{{ ""building"":{0}, ""changes"": {1} }}", buildingId, json);
-			//PushNotification.SendPushNotification(deviceID, message);
+			PushNotification.SendPushNotification(deviceID, message);
 		}
 
 		/// <summary>
