@@ -1,12 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Threading;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Xml;
-using Newtonsoft.Json.Linq;
+using System.Web;
 using PushNotifications;
 
 namespace BrakelInlogApplication
@@ -19,31 +14,46 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// Initializes a new instance of the BrakelInlogApplication.APIException class.
 		/// </summary>
-		public APIException() : base() { }
+		public APIException()
+		{
+		}
+
 		/// <summary>
 		///  Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
-		public APIException(string message) : base(message) { }
+		public APIException(string message) : base(message)
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message and a reference to the inner exception that is the cause of this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
-		public APIException(string message, Exception innerException) : base(message, innerException) { }
+		public APIException(string message, Exception innerException) : base(message, innerException)
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message and the name of the parameter that causes this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="paramName">The name of the parameter that caused the current exception.</param>
-		public APIException(string message, string paramName) : base(message, paramName) { }
+		public APIException(string message, string paramName) : base(message, paramName)
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the BrakelInlogApplication.APIException class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="paramName">The name of the parameter that caused the current exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
-		public APIException(string message, string paramName, Exception innerException) : base(message, paramName, innerException) { }
+		public APIException(string message, string paramName, Exception innerException)
+			: base(message, paramName, innerException)
+		{
+		}
 	}
 
 	/// <summary>
@@ -51,16 +61,14 @@ namespace BrakelInlogApplication
 	/// </summary>
 	public class API : IHttpAsyncHandler
 	{
+		#region IHttpAsyncHandler Members
+
 		/// <summary>
 		/// Boolean to indicate the handler is reusable which causes Singleton like behaviour (Performance tweak)
 		/// </summary>
-		public bool IsReusable { get { return true; } }
-
-		/// <summary>
-		/// Constructor, this will only be called once (Singleton behaviour)
-		/// </summary>
-		public API()
-		{			
+		public bool IsReusable
+		{
+			get { return true; }
 		}
 
 		/// <summary>
@@ -72,7 +80,7 @@ namespace BrakelInlogApplication
 		/// <returns>The AsyncResult</returns>
 		public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
 		{
-			AsynchOperation asynch = new AsynchOperation(cb, context, extraData);
+			var asynch = new AsynchOperation(cb, context, extraData);
 			asynch.StartAsyncWork();
 			return asynch;
 		}
@@ -93,27 +101,47 @@ namespace BrakelInlogApplication
 		{
 			throw new InvalidOperationException();
 		}
+
+		#endregion
 	}
 
 	/// <summary>
 	/// Handler class used to handle the async requests
 	/// </summary>
-	class AsynchOperation : IAsyncResult
+	internal class AsynchOperation : IAsyncResult
 	{
 		#region Properties
-		private HttpContext _context;
-		private AsyncCallback _callback;
+
+		private readonly AsyncCallback _callback;
+		private readonly HttpContext _context;
+		private readonly Object _state;
 
 		private bool _completed;
-		bool IAsyncResult.IsCompleted { get { return _completed; } }
 
-		private Object _state;
-		Object IAsyncResult.AsyncState { get { return _state; } }
+		bool IAsyncResult.IsCompleted
+		{
+			get { return _completed; }
+		}
 
-		WaitHandle IAsyncResult.AsyncWaitHandle { get { return null; } }
-		bool IAsyncResult.CompletedSynchronously { get { return false; } }
+		Object IAsyncResult.AsyncState
+		{
+			get { return _state; }
+		}
+
+		WaitHandle IAsyncResult.AsyncWaitHandle
+		{
+			get { return null; }
+		}
+
+		bool IAsyncResult.CompletedSynchronously
+		{
+			get { return false; }
+		}
+
 		#endregion
+
 		#region Framework Registration Methods
+
 		/// <summary>
 		/// Constructor (Called in BeginProcessRequest, do not invoke manually!) 
 		/// </summary>
@@ -133,8 +161,9 @@ namespace BrakelInlogApplication
 		/// </summary>
 		public void StartAsyncWork()
 		{
-			ThreadPool.QueueUserWorkItem(new WaitCallback(StartAsyncTask), null);
+			ThreadPool.QueueUserWorkItem(StartAsyncTask, null);
 		}
+
 		#endregion
 
 		/// <summary>
@@ -155,13 +184,14 @@ namespace BrakelInlogApplication
 						case "login":
 							{
 								#region Prepare to handle login request
+
 								string username = _context.Request.Form["username"];
 								string hash = _context.Request.Form["hash"];
 								if (!String.IsNullOrWhiteSpace(username))
 								{
 									if (!String.IsNullOrWhiteSpace(hash))
 									{
-										Guid userToken = APIHelper.Instance.login(username, hash);
+										Guid userToken = APIHelper.Instance.Login(username, hash);
 										result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
 									}
 									else
@@ -173,20 +203,23 @@ namespace BrakelInlogApplication
 								{
 									throw new APIException("No valid username was provided", "username");
 								}
+
 								#endregion
+
 								break;
 							}
 						case "getBuildings":
 							{
 								#region Prepare to handle getBuildings request
+
 								string userTokenString = _context.Request.Form["userToken"];
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									List<Building> buildings = APIHelper.Instance.getBuildings(userToken);
+									List<Building> buildings = APIHelper.Instance.GetBuildings(userToken);
 									buildings.ForEach(
 										i => result += ("," + i.ToJSONString())
-									);
+										);
 									if (result.Length > 1)
 										result = result.Substring(1);
 									result = @"{ ""buildings"": [" + result + "] }";
@@ -195,27 +228,31 @@ namespace BrakelInlogApplication
 								{
 									throw new APIException("No valid userToken was provided", "userToken");
 								}
+
 								#endregion
+
 								break;
 							}
 						case "getFloors":
 							{
 								#region Prepare to handle getFloors request
+
 								string userTokenString = _context.Request.Form["userToken"];
 								string buildingIdString = _context.Request.Form["buildingId"];
+								bool getRooms = Boolean.Parse(_context.Request.Form["buildingId"] ?? Boolean.FalseString);
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										/*List<Floor> floors = APIHelper.Instance.getFloors(userToken, buildingId);
+										List<Floor> floors = APIHelper.Instance.GetFloors(userToken, buildingId, getRooms);
 										floors.ForEach(
 											i => result += ("," + i.ToJSONString())
-										);
+											);
 										if (result.Length > 1)
 											result = result.Substring(1);
-										result = @"{ ""floors"": [" + result + "] }";*/
+										result = @"{ ""floors"": [" + result + "] }";
 									}
 									else
 									{
@@ -226,12 +263,49 @@ namespace BrakelInlogApplication
 								{
 									throw new APIException("No valid userToken was provided", "userToken");
 								}
+
 								#endregion
+
+								break;
+							}
+						case "getRooms":
+							{
+								#region Prepare to handle getFloors request
+
+								string userTokenString = _context.Request.Form["userToken"];
+								string floorIdString = _context.Request.Form["floorId"];
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int floorId;
+									if (Int32.TryParse(floorIdString, out floorId))
+									{
+										List<Room> rooms = APIHelper.Instance.GetRooms(userToken, floorId);
+										rooms.ForEach(
+											i => result += ("," + i.ToJSONString())
+											);
+										if (result.Length > 1)
+											result = result.Substring(1);
+										result = @"{ ""rooms"": [" + result + "] }";
+									}
+									else
+									{
+										throw new APIException("No valid floorId was provided", "floorId");
+									}
+								}
+								else
+								{
+									throw new APIException("No valid userToken was provided", "userToken");
+								}
+
+								#endregion
+
 								break;
 							}
 						case "getLayout":
 							{
 								#region Prepare to handle getLayout request
+
 								string userTokenString = _context.Request.Form["userToken"];
 								string buildingIdString = _context.Request.Form["buildingId"];
 								Guid userToken;
@@ -240,7 +314,7 @@ namespace BrakelInlogApplication
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										string layoutXMLString = APIHelper.Instance.getUserLayout(userToken, buildingId);
+										string layoutXMLString = APIHelper.Instance.GetUserLayout(userToken, buildingId);
 										result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
 									}
 									else
@@ -252,14 +326,17 @@ namespace BrakelInlogApplication
 								{
 									throw new APIException("No valid userToken was provided", "userToken");
 								}
+
 								#endregion
+
 								break;
 							}
 						case "changeGroups":
 							{
 								#region Prepare to handle changeGroups request
-								string userTokenString = Guid.NewGuid().ToString(); //_context.Request.Form["userToken"];
-								string buildingIdString = "1"; //_context.Request.Form["buildingId"];
+
+								string userTokenString = Guid.NewGuid().ToString(); // _context.Request.Form["userToken"];
+								string buildingIdString = "1"; // _context.Request.Form["buildingId"];
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
@@ -268,14 +345,14 @@ namespace BrakelInlogApplication
 									{
 										//string changesString = _context.Request.Form["changes"];
 										//JObject obj = JObject.Parse(changesString);
-										List<Changes> changes = new List<Changes>();
-											changes.Add(new Changes() { GroupID = 1, ChangeValue = 1 });
-											changes.Add(new Changes() { GroupID = 2, ChangeValue = 1 });
-											changes.Add(new Changes() { GroupID = 3, ChangeValue = 0 });
-										changes = APIHelper.Instance.makeChangesToGroups(userToken, buildingId, changes);
+										var changes = new List<Changes>();
+										changes.Add(new Changes {GroupID = 1, ChangeValue = 1});
+										changes.Add(new Changes {GroupID = 2, ChangeValue = 1});
+										changes.Add(new Changes {GroupID = 3, ChangeValue = 0});
+										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())
-										);
+											);
 										if (result.Length > 1)
 											result = result.Substring(1);
 										result = @" { ""changes"": [" + result + "] }";
@@ -289,16 +366,21 @@ namespace BrakelInlogApplication
 								{
 									throw new APIException("No valid userToken was provided", "userToken");
 								}
+
 								#endregion
+
 								break;
 							}
 						case "testPush":
 							{
 								#region Handle testPush
+
 								string deviceID = _context.Request.QueryString["device"];
 								string message = _context.Request.QueryString["message"];
 								PushNotification.SendPushNotification(deviceID, message);
+
 								#endregion
+
 								break;
 							}
 						default:
@@ -318,7 +400,9 @@ namespace BrakelInlogApplication
 			}
 			catch (Exception ex)
 			{
-				result = String.Format(@"{{ ""error"":""{0}"", ""stacktrace"":""{1}"" }}", ex.Message.Replace('\n', ' ').Replace('\r', ' '), ex.StackTrace.Replace('\n', ' ').Replace('\r', ' ').Replace("\\", "\\\\"));
+				result = String.Format(@"{{ ""error"":""{0}"", ""stacktrace"":""{1}"" }}",
+				                       ex.Message.Replace('\n', ' ').Replace('\r', ' '),
+				                       ex.StackTrace.Replace('\n', ' ').Replace('\r', ' ').Replace("\\", "\\\\"));
 			}
 			finally
 			{
