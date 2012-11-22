@@ -239,7 +239,7 @@ namespace BrakelInlogApplication
 
 								string userTokenString = _context.Request.Form["userToken"];
 								string buildingIdString = _context.Request.Form["buildingId"];
-								bool getRooms = Boolean.Parse(_context.Request.Form["buildingId"] ?? Boolean.FalseString);
+								bool getRooms = Boolean.Parse(_context.Request.Form["getRooms"] ?? Boolean.FalseString);
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
@@ -374,11 +374,12 @@ namespace BrakelInlogApplication
 						case "testPush":
 							{
 								#region Handle testPush
-
-								string deviceID = _context.Request.QueryString["device"];
+								
+								string deviceID = ConstantHelper.TestIPad;
 								string message = _context.Request.QueryString["message"];
 								PushNotification.SendPushNotification(deviceID, message);
-
+								result = "{ \"status\":true }";
+								
 								#endregion
 
 								break;

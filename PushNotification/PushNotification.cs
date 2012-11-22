@@ -45,7 +45,7 @@ namespace PushNotifications
 			using (PushService push = new PushService())
 			{
 
-				var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../PushNotification/brakelnotify.p12"));
+				var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "brakelnotify.p12"));
 
 				//Configure and start Apple APNS
 				push.StartApplePushService(new ApplePushChannelSettings(!sandBox, appleCert, "brakel"));

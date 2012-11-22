@@ -362,24 +362,28 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					//join buildings on users rights
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
-													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
-													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, floorId);
+					//join buildings on users rights?
+					query = String.Format(@"SELECT	[room].* FROM [room]
+													LEFT JOIN [building] ON [room].[floorId] = [building].[buildingId]
+											WHERE	[building].[buildingId] = {0}", floorId);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						//rooms.Add(new Room()
-						//{
-						//    AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-						//    BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-						//    BuildingName = reader["name"].ToString(),
-						//    Parent = Int32.Parse(reader["parentId"].ToString())
-						//});
+						rooms.Add(new Room()
+						{
+							RoomID = Int32.Parse(reader["roomId"].ToString()),
+							RoomName = reader["roomName"].ToString(),
+							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							XCoordinate = Int32.Parse(reader["xCoordinate"].ToString()),
+							YCoordinate = Int32.Parse(reader["yCoordinate"].ToString()),
+							Width = Int32.Parse(reader["width"].ToString()),
+							Height = Int32.Parse(reader["height"].ToString()),
+							IsEnabled = Boolean.Parse(reader["enabled"].ToString()),
+							HasAlarmValue = Boolean.Parse(reader["hasAlarm"].ToString())
+						});
 					}
 				}
 			}
