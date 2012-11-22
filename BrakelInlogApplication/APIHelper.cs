@@ -286,11 +286,10 @@ namespace BrakelInlogApplication
 				var command = new SqlCommand (query, connection);
 				deviceID = command.ExecuteScalar () as String;
 			}
-			if (String.IsNullOrWhiteSpace (deviceID)) {
-				deviceID = ConstantHelper.TestIPad;
+			if (!String.IsNullOrWhiteSpace (deviceID)) {
+				string message = String.Format (@"{{ ""building"":{0}, ""changes"": {1} }}", buildingId, json);
+				PushNotification.SendPushNotification (deviceID, message);
 			}
-			string message = String.Format(@"{{ ""building"":{0}, ""changes"": {1} }}", buildingId, json);
-			PushNotification.SendPushNotification(deviceID, message);
 		}
 
 		/// <summary>
