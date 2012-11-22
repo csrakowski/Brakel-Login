@@ -50,6 +50,8 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building to poll</param>
 		public void StartPollingBuilding (Guid userToken, int buildingId)
 		{
+			//ThreadPool.QueueUserWorkItem(StartAsyncTask, null);
+			//private void StartAsyncTask(Object workItemState)
 			bool notDone = true;
 			while (notDone)
 			{

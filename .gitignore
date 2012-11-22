@@ -6,3 +6,5 @@
 */obj
 */Properties
 _ReSharper*
+*.orig
+*.userprefs
