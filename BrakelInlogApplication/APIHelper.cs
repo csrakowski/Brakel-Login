@@ -104,7 +104,7 @@ namespace BrakelInlogApplication
 				{
 					//join buildings on users rights
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
-													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
+													LEFT JOIN [userBuildingCouple] ON [building].[buildingId] = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
 											WHERE	[user].[username] = '{0}'", username);
 					command = new SqlCommand(query, connection);
@@ -310,10 +310,9 @@ namespace BrakelInlogApplication
 				{
 					//join buildings on users rights
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
-													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
+													LEFT JOIN [userBuildingCouple] ON [building].[parentId] = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username,
-					                      buildingId);
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection
@@ -367,8 +366,7 @@ namespace BrakelInlogApplication
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
 													LEFT JOIN [userBuildingCouple] ON building.buildingId = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username,
-					                      floorId);
+											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, floorId);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection
