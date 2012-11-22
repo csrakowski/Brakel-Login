@@ -187,11 +187,12 @@ namespace BrakelInlogApplication
 
 								string username = _context.Request.Form["username"];
 								string hash = _context.Request.Form["hash"];
+								string device = _context.Request.Form["device"] ?? "";
 								if (!String.IsNullOrWhiteSpace(username))
 								{
 									if (!String.IsNullOrWhiteSpace(hash))
 									{
-										Guid userToken = APIHelper.Instance.Login(username, hash);
+										Guid userToken = APIHelper.Instance.Login(username, hash, device);
 										result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
 									}
 									else

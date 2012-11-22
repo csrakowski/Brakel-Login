@@ -44,7 +44,7 @@ namespace BrakelInlogApplication
 		/// <param name="username">The username</param>
 		/// <param name="passwordHash">The hashed password</param>
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
-		public Guid Login(string username, string passwordHash)
+		public Guid Login(string username, string passwordHash, string device)
 		{
 			Guid userToken = Guid.Empty;
 
@@ -64,8 +64,8 @@ namespace BrakelInlogApplication
 					userToken = Guid.NewGuid();
 
 					//register token in db to the user
-					query = String.Format("INSERT INTO [token] ([username], [token], [createDateTime]) VALUES('{0}','{1}','{2}')",
-					                      username, userToken, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+					query = String.Format("INSERT INTO [token] ([username], [token], [deviceId], [createDateTime]) VALUES('{0}','{1}','{2}','{3}')",
+					                     username, userToken, device, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
 					command = new SqlCommand(query, connection);
 					int result = command.ExecuteNonQuery();
 					if (result < 1)
@@ -276,9 +276,19 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="buildingId">The building this result is about</param>
 		/// <param name="json">The result in JSON format</param>
-		public static void OnPollingResult(Guid userToken, int buildingId, string json)
+		public static void OnPollingResult (Guid userToken, int buildingId, string json)
 		{
-			string deviceID = ConstantHelper.TestIPad; //get from database based on userToken
+			string deviceID = "";
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString)) {
+				connection.Open ();
+
+				string query = String.Format ("SELECT [deviceId] FROM [token] WHERE [userToken] = '{0}'", userToken);
+				var command = new SqlCommand (query, connection);
+				deviceID = command.ExecuteScalar () as String;
+			}
+			if (String.IsNullOrWhiteSpace (deviceID)) {
+				deviceID = ConstantHelper.TestIPad;
+			}
 			string message = String.Format(@"{{ ""building"":{0}, ""changes"": {1} }}", buildingId, json);
 			PushNotification.SendPushNotification(deviceID, message);
 		}
@@ -364,7 +374,7 @@ namespace BrakelInlogApplication
 				{
 					//join buildings on users rights?
 					query = String.Format(@"SELECT	[room].* FROM [room]
-													LEFT JOIN [building] ON [room].[floorId] = [building].[buildingId]
+													LEFT JOIN [building] ON [room].[buildingId] = [building].[buildingId]
 											WHERE	[building].[buildingId] = {0}", floorId);
 					command = new SqlCommand(query, connection);
 
