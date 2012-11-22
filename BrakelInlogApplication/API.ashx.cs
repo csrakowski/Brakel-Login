@@ -378,8 +378,8 @@ namespace BrakelInlogApplication
 								
 								string deviceID = ConstantHelper.TestIPad;
 								string message = _context.Request.QueryString["message"];
-								PushNotification.SendPushNotification(deviceID, message);
-								result = "{ \"status\":true }";
+								bool status = PushNotification.SendPushNotification(deviceID, message);
+								result = String.Format(@"{{ ""status"":{0} }}", status.ToString().ToLower());
 								
 								#endregion
 
