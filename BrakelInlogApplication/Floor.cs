@@ -9,6 +9,14 @@ namespace BrakelInlogApplication
 	public class Floor : Building
 	{
 		/// <summary>
+		/// Initializes a new instance of the <see cref="BrakelInlogApplication.Floor"/> class.
+		/// </summary>
+		public Floor () :base()
+		{
+			Rooms = new List<Room>();
+		}
+
+		/// <summary>
 		/// List of rooms belonging to the floor
 		/// </summary>
 		public List<Room> Rooms { get; set; }
@@ -23,7 +31,7 @@ namespace BrakelInlogApplication
 			string arrayJSON = "";
 			Rooms.ForEach(
 				r => arrayJSON += ("," + r.ToJSONString())
-				);
+			);
 			if (arrayJSON.Length > 0)
 				arrayJSON = arrayJSON.Substring(1);
 
