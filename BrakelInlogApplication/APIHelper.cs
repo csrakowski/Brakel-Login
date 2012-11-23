@@ -102,8 +102,8 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					//join buildings on users rights
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
+					//TODO: Subjoin rooms en ophalen die bitje
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (CAST(1 AS bit)) AS [hasAlarm] FROM [building]
 													LEFT JOIN [userBuildingCouple] ON [building].[buildingId] = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
 											WHERE	[user].[username] = '{0}'", username);
@@ -114,12 +114,13 @@ namespace BrakelInlogApplication
 					while (reader.Read())
 					{
 						buildings.Add(new Building
-							              {
-								              AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-								              BuildingID = Int32.Parse(reader["buildingId"].ToString()),
-								              BuildingName = reader["name"].ToString(),
-								              Parent = Int32.Parse(reader["parentId"].ToString())
-							              });
+						{
+					  		AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
+						  	BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+						 	BuildingName = reader["name"].ToString(),
+							Parent = Int32.Parse(reader["parentId"].ToString()),
+							HasAlarm = Boolean.Parse(reader["hasAlarm"].ToString())
+						});
 					}
 				}
 			}
@@ -317,8 +318,8 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					//join buildings on users rights
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights] FROM [building]
+					//TODO: subjoins rooms en ophalen die bitje
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (CAST(1 AS bit)) AS [hasAlarm] FROM [building]
 													LEFT JOIN [userBuildingCouple] ON [building].[parentId] = [userBuildingCouple].[buildingId]
 													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
 											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
@@ -333,7 +334,8 @@ namespace BrakelInlogApplication
 							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
 							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
 							BuildingName = reader["name"].ToString(),
-							Parent = Int32.Parse(reader["parentId"].ToString())
+							Parent = Int32.Parse(reader["parentId"].ToString()),
+							HasAlarm = Boolean.Parse(reader["hasAlarm"].ToString())
 						};
 						if (getRoomsRecursivly)
 						{

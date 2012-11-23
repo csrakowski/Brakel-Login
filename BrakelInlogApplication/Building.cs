@@ -28,13 +28,21 @@ namespace BrakelInlogApplication
 		public int Parent { get; set; }
 
 		/// <summary>
+		/// Gets or sets a value indicating whether this instance has alarm.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if this instance has alarm; otherwise, <c>false</c>.
+		/// </value>
+		public bool HasAlarm { get; set; }
+
+		/// <summary>
 		/// Returns a JSON representation of the current object
 		/// </summary>
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3} }}",
-			                     BuildingID, BuildingName, AccessRole.ToString(), Parent);
+			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3}, ""HasAlarm"":{4} }}",
+			                     BuildingID, BuildingName, AccessRole.ToString(), Parent, HasAlarm.ToString().ToLower());
 		}
 
 		/// <summary>

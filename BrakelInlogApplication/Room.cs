@@ -59,8 +59,8 @@ namespace BrakelInlogApplication
 		public String ToJSONString()
 		{
 			return
-				String.Format(@"{{ ""RoomID"":{0}, ""RoomName"":""{1}"", ""BuildingID"":""{2}"", ""X"":""{3}"", ""Y"":""{4}"", ""Width"":""{5}"", ""height"":""{6}"", ""Enabled"":""{7}"", ""HasAlarm"":""{8}"" }}",
-					RoomID, RoomName, BuildingID, XCoordinate, YCoordinate, Width, Height, IsEnabled, HasAlarmValue);
+				String.Format(@"{{ ""RoomID"":{0}, ""RoomName"":""{1}"", ""BuildingID"":""{2}"", ""X"":""{3}"", ""Y"":""{4}"", ""Width"":""{5}"", ""Height"":""{6}"", ""Enabled"":{7}, ""HasAlarm"":{8} }}",
+					RoomID, RoomName, BuildingID, XCoordinate, YCoordinate, Width, Height, IsEnabled.ToString().ToLower(), HasAlarmValue.ToString().ToLower());
 		}
 	}
 }
