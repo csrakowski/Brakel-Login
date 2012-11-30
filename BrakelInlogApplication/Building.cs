@@ -68,6 +68,21 @@ namespace BrakelInlogApplication
 					}
 			}
 		}
+
+		/// <summary>
+		/// Gets the building ip.
+		/// </summary>
+		/// <returns>
+		/// The building ip.
+		/// </returns>
+		/// <param name='buildingId'>
+		/// Building identifier.
+		/// </param>
+		public static String GetBuildingIp(int buildingId)
+		{
+			///TODO: Get ip from database based on building id
+			return ConstantHelper.TestBuilding;
+		}
 	}
 
 	/// <summary>

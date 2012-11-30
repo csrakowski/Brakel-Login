@@ -52,35 +52,35 @@ namespace BrakelInlogApplication
 		{
 			//ThreadPool.QueueUserWorkItem(StartAsyncTask, null);
 			//private void StartAsyncTask(Object workItemState)
+
+			int errorCount = ConstantHelper.MaxPollErrors;
+
+			string requestBody = @"{ ""command"": ""progress"" }\r\n\r\n";
+			string targetBuilding = Building.GetBuildingIp(buildingId);
+
 			bool notDone = true;
 			while (notDone)
 			{
-				Thread.Sleep(60*60*1000); // 60 seconds
-
-				#region Make HTTP Request
-
-				string requestBody = @"{ ""command"": ""progress"" }\r\n\r\n";
-
-				//Get ip from database based on building id
-				string targetBuilding = ConstantHelper.TestBuilding;
-
-				var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
-				request.Method = "POST";
-				request.Timeout = (5*60*1000); // 5 seconds
-				request.KeepAlive = false;
-				request.SendChunked = false;
-
-				byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-				request.ContentType = "application/json";
-				request.ContentLength = byte1.Length;
-				Stream newStream = request.GetRequestStream();
-				newStream.Write(byte1, 0, byte1.Length);
-
-				#endregion
+				Thread.Sleep(ConstantHelper.PollInterval);
 
 				JObject result = null;
 				try
 				{
+					#region Make HTTP Request
+					var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
+					request.Method = "POST";
+					request.Timeout = ConstantHelper.BuildingTimeout;
+					request.ContentType = "application/json";
+					request.KeepAlive = false;
+					request.SendChunked = false;
+
+					byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
+					request.ContentLength = byte1.Length;
+					Stream newStream = request.GetRequestStream();
+					newStream.Write(byte1, 0, byte1.Length);
+					#endregion
+
+					#region Parse Response
 					var response = (HttpWebResponse) request.GetResponse();
 
 					Stream str = response.GetResponseStream();
@@ -90,10 +90,16 @@ namespace BrakelInlogApplication
 					string resultString = Encoding.ASCII.GetString(buffer);
 					Debug.WriteLine(resultString);
 					result = JObject.Parse(resultString);
+					#endregion
 				}
 				catch (Exception ex)
 				{
 					Debug.WriteLine(ex.Message);
+					if(errorCount-- == 0)
+					{
+						OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":true ]");
+						break;
+					}
 				}
 
 				if (result != null)

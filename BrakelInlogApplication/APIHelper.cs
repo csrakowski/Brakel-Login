@@ -145,37 +145,36 @@ namespace BrakelInlogApplication
 			{
 				if (buildingId != 0)
 				{
-					#region Make HTTP Request
-					///TODO: Use TcpClient over WebRequest for performance?
-
-					string requestBody = "";
-					changes.ForEach(
-						i => requestBody += ("," + i.ToJSONString())
-						);
-					if (requestBody.Length > 1)
-						requestBody = requestBody.Substring(1);
-					requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
-
-					//Get ip from database based on building id
-					string targetBuilding = ConstantHelper.TestBuilding;
-
-					var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
-					request.Method = "POST";
-					request.Timeout = (5*60*1000); // 5 seconds
-					request.KeepAlive = false;
-					request.SendChunked = false;
-
-					byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-					request.ContentType = "application/json";
-					request.ContentLength = byte1.Length;
-					Stream newStream = request.GetRequestStream();
-					newStream.Write(byte1, 0, byte1.Length);
-
-					#endregion
-
 					JObject result = null;
 					try
 					{
+						#region Convert objects to JSON
+						string requestBody = "";
+						changes.ForEach(
+							i => requestBody += ("," + i.ToJSONString())
+							);
+						if (requestBody.Length > 1)
+							requestBody = requestBody.Substring(1);
+						requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
+						#endregion
+
+						#region Make HTTP Request
+						string targetBuilding = Building.GetBuildingIp(buildingId);
+
+						var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
+						request.Method = "POST";
+						request.Timeout = ConstantHelper.BuildingTimeout;
+						request.ContentType = "application/json";
+						request.KeepAlive = false;
+						request.SendChunked = false;
+
+						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
+						request.ContentLength = byte1.Length;
+						Stream newStream = request.GetRequestStream();
+						newStream.Write(byte1, 0, byte1.Length);
+						#endregion
+
+						#region Parse response
 						var response = (HttpWebResponse) request.GetResponse();
 
 						Stream str = response.GetResponseStream();
@@ -185,6 +184,7 @@ namespace BrakelInlogApplication
 						string resultString = Encoding.ASCII.GetString(buffer);
 						Debug.WriteLine(resultString);
 						result = JObject.Parse(resultString);
+						#endregion
 					}
 					catch (Exception ex)
 					{

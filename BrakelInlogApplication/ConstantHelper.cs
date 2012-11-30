@@ -1,4 +1,5 @@
 using System.Configuration;
+using System;
 
 namespace BrakelInlogApplication
 {
@@ -30,5 +31,34 @@ namespace BrakelInlogApplication
 		{
 			get { return ConfigurationManager.AppSettings["TestIPad"] ?? ""; }
 		}		
+
+		/// <summary>
+		/// Gets the timeout of the building makeChanges call
+		/// </summary>
+		public static int BuildingTimeout
+		{
+			get { return Int32.Parse(ConfigurationManager.AppSettings["BuildingTimeout"] ?? "350000"); }
+		}
+
+		/// <summary>
+		/// Gets the poll interval.
+		/// </summary>
+		/// <value>
+		/// The poll interval.
+		/// </value>
+		public static int PollInterval
+		{
+			get { return Int32.Parse(ConfigurationManager.AppSettings["PollInterval"] ?? "3600000"); }
+		}
+
+		/// <summary>
+		/// Gets the max poll errors.
+		/// </summary>
+		/// <value>
+		/// The max poll errors.
+		/// </value>
+		public static int MaxPollErrors {
+			get { return Int32.Parse(ConfigurationManager.AppSettings["MaxPollErrors"] ?? "5"); }
+		}
 	}
 }
