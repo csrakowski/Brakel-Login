@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Web;
 using PushNotifications;
+using Newtonsoft.Json.Linq;
 
 namespace BrakelInlogApplication
 {
@@ -336,20 +337,30 @@ namespace BrakelInlogApplication
 							{
 								#region Prepare to handle changeGroups request
 
-								string userTokenString = Guid.NewGuid().ToString(); // _context.Request.Form["userToken"];
-								string buildingIdString = "1"; // _context.Request.Form["buildingId"];
+								string userTokenString = _context.Request.Form["userToken"] ?? Guid.NewGuid().ToString();
+								string buildingIdString = _context.Request.Form["buildingId"] ?? "1";
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
 									int buildingId;
 									if (Int32.TryParse(buildingIdString, out buildingId))
 									{
-										//string changesString = _context.Request.Form["changes"];
-										//JObject obj = JObject.Parse(changesString);
+										string changesString = _context.Request.Form["changes"] ?? "[]";
+										var obj = JArray.Parse(changesString);
 										var changes = new List<Changes>();
-										changes.Add(new Changes {GroupID = 1, ChangeValue = 1});
-										changes.Add(new Changes {GroupID = 2, ChangeValue = 1});
-										changes.Add(new Changes {GroupID = 3, ChangeValue = 0});
+										foreach (var item in obj) {
+											changes.Add (new Changes() {
+												GroupID = Int32.Parse (item["GroupID"].ToString()),
+												ChangeValue = Int32.Parse (item["ChangeValue"].ToString()),
+												ChangeStatus = null
+											});
+										}
+										if(changes.Count == 0)
+										{
+											changes.Add(new Changes {GroupID = 1, ChangeValue = 1});
+											changes.Add(new Changes {GroupID = 2, ChangeValue = 1});
+											changes.Add(new Changes {GroupID = 3, ChangeValue = 0});
+										}
 										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())
