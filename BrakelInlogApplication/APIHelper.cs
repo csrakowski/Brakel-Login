@@ -318,12 +318,14 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					//TODO: subjoins rooms en ophalen die bitje
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (CAST(1 AS bit)) AS [hasAlarm] FROM [building]
-													LEFT JOIN [userBuildingCouple] ON [building].[parentId] = [userBuildingCouple].[buildingId]
-													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+					//SUBSELECT FOR A SINGLE BIT!
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (SELECT MAX(CAST([hasAlarm] AS int)) FROM [room] WHERE [room].[buildingId] = [building].[buildingId]) AS [hasAlarm] FROM [building]
+											LEFT JOIN [userBuildingCouple] ON [building].[parentId] = [userBuildingCouple].[buildingId]
+											LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
 											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
 					command = new SqlCommand(query, connection);
+
+
 
 					//Fill collection
 					SqlDataReader reader = command.ExecuteReader();
