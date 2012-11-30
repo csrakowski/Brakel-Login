@@ -57,7 +57,8 @@ namespace BrakelInlogApplication
 		/// <value>
 		/// The max poll errors.
 		/// </value>
-		public static int MaxPollErrors {
+		public static int MaxPollErrors
+		{
 			get { return Int32.Parse(ConfigurationManager.AppSettings["MaxPollErrors"] ?? "5"); }
 		}
 	}

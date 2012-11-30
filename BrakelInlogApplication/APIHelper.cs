@@ -157,7 +157,6 @@ namespace BrakelInlogApplication
 							requestBody = requestBody.Substring(1);
 						requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
 						#endregion
-
 						#region Make HTTP Request
 						string targetBuilding = Building.GetBuildingIp(buildingId);
 
@@ -173,7 +172,6 @@ namespace BrakelInlogApplication
 						Stream newStream = request.GetRequestStream();
 						newStream.Write(byte1, 0, byte1.Length);
 						#endregion
-
 						#region Parse response
 						var response = (HttpWebResponse) request.GetResponse();
 
@@ -189,10 +187,9 @@ namespace BrakelInlogApplication
 					catch (Exception ex)
 					{
 						Debug.WriteLine(ex.Message);
-						foreach (Changes item in changes)
-						{
-							item.ChangeStatus = false;
-						}
+						changes.ForEach(
+							i => i.ChangeStatus = false
+						);
 						return changes;
 					}
 

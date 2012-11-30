@@ -14,7 +14,6 @@ namespace BrakelInlogApplication
 	public sealed class BackgroundPoller
 	{
 		#region Delegates
-
 		/// <summary>
 		/// PollingResult
 		/// </summary>
@@ -22,7 +21,6 @@ namespace BrakelInlogApplication
 		/// <param name="building">The building this result is about</param>
 		/// <param name="json">The result in JSON format</param>
 		public delegate void PollingResult(Guid userToken, int building, string json);
-
 		#endregion
 
 		/// <summary>
