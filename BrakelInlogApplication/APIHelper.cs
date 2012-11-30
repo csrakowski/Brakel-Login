@@ -102,11 +102,15 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					//TODO: Subjoin rooms en ophalen die bitje
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (CAST(1 AS bit)) AS [hasAlarm] FROM [building]
-													LEFT JOIN [userBuildingCouple] ON [building].[buildingId] = [userBuildingCouple].[buildingId]
-													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
-											WHERE	[user].[username] = '{0}'", username);
+					///All this trouble for a single bit?
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights],
+												CAST((SELECT MAX(CAST([hasAlarm] AS int)) FROM [room] WHERE [room].[buildingId] IN
+													(SELECT [buildingId] FROM [building] WHERE [building].[parentId]= [userBuildingCouple].[buildingId]))
+												AS bit) AS [hasAlarm]
+											FROM [building]
+											LEFT JOIN [userBuildingCouple] ON [building].[buildingId] = [userBuildingCouple].[buildingId]
+											LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE [user].[username] = '{0}'", username);
 					command = new SqlCommand(query, connection);
 
 					//Fill collection
@@ -142,6 +146,7 @@ namespace BrakelInlogApplication
 				if (buildingId != 0)
 				{
 					#region Make HTTP Request
+					///TODO: Use TcpClient over WebRequest for performance?
 
 					string requestBody = "";
 					changes.ForEach(
@@ -319,7 +324,10 @@ namespace BrakelInlogApplication
 				else
 				{
 					//SUBSELECT FOR A SINGLE BIT!
-					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights], (SELECT MAX(CAST([hasAlarm] AS int)) FROM [room] WHERE [room].[buildingId] = [building].[buildingId]) AS [hasAlarm] FROM [building]
+					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights],
+												CAST((SELECT MAX(CAST([hasAlarm] AS int)) FROM [room] WHERE [room].[buildingId] = [building].[buildingId])
+												AS bit) AS [hasAlarm]
+											FROM [building]
 											LEFT JOIN [userBuildingCouple] ON [building].[parentId] = [userBuildingCouple].[buildingId]
 											LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
 											WHERE	[user].[username] = '{0}' and [building].[parentId] = {1}", username, buildingId);
