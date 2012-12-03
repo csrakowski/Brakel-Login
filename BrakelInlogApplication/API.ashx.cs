@@ -355,14 +355,17 @@ namespace BrakelInlogApplication
 										}
 										if(changes.Count == 0)
 										{
-											changes.Add(new Changes {GroupID = 1, ChangeValue = 255});
-											changes.Add(new Changes {GroupID = 2, ChangeValue = 128});
-											changes.Add(new Changes {GroupID = 3, ChangeValue = 0});
+											var r = new Random();
+											var max = r.Next(2, 5);
+											for (uint j = 0; j < max; j++)
+											{
+												changes.Add(new Changes { GroupID = (1 + j), ChangeValue = (uint)r.Next(0, 255) });
+											}											
 										}
 										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())
-											);
+										);
 										if (result.Length > 1)
 											result = result.Substring(1);
 										result = @" { ""changes"": [" + result + "] }";
