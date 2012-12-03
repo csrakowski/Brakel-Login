@@ -43,6 +43,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <param name="username">The username</param>
 		/// <param name="passwordHash">The hashed password</param>
+		/// <param name="device">The deviceId of the iPhone or iPad</param>
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
 		public Guid Login(string username, string passwordHash, string device)
 		{
@@ -102,7 +103,7 @@ namespace BrakelInlogApplication
 				}
 				else
 				{
-					///All this trouble for a single bit?
+					//All this trouble for a single bit?
 					query = String.Format(@"SELECT	[building].*, [userBuildingCouple].[accessRights],
 												CAST((SELECT MAX(CAST([hasAlarm] AS int)) FROM [room] WHERE [room].[buildingId] IN
 													(SELECT [buildingId] FROM [building] WHERE [building].[parentId]= [userBuildingCouple].[buildingId]))

@@ -80,7 +80,7 @@ namespace BrakelInlogApplication
 		/// </param>
 		public static String GetBuildingIp(int buildingId)
 		{
-			///TODO: Get ip from database based on building id
+			//TODO: Get ip from database based on building id
 			return ConstantHelper.TestBuilding;
 		}
 	}

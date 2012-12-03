@@ -140,7 +140,6 @@ namespace BrakelInlogApplication
 		}
 
 		#endregion
-
 		#region Framework Registration Methods
 
 		/// <summary>
@@ -350,15 +349,14 @@ namespace BrakelInlogApplication
 										var changes = new List<Changes>();
 										foreach (var item in obj) {
 											changes.Add (new Changes() {
-												GroupID = Int32.Parse (item["GroupID"].ToString()),
-												ChangeValue = Int32.Parse (item["ChangeValue"].ToString()),
-												ChangeStatus = null
+												GroupID = UInt32.Parse (item["GroupID"].ToString()),
+												ChangeValue = UInt32.Parse (item["ChangeValue"].ToString())
 											});
 										}
 										if(changes.Count == 0)
 										{
-											changes.Add(new Changes {GroupID = 1, ChangeValue = 1});
-											changes.Add(new Changes {GroupID = 2, ChangeValue = 1});
+											changes.Add(new Changes {GroupID = 1, ChangeValue = 255});
+											changes.Add(new Changes {GroupID = 2, ChangeValue = 128});
 											changes.Add(new Changes {GroupID = 3, ChangeValue = 0});
 										}
 										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);

@@ -13,17 +13,17 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The group id this change will affect
 		/// </summary>
-		public int GroupID { get; set; }
+		public uint GroupID { get; set; }
 
 		/// <summary>
-		/// The value the group will be changed to
+		/// The value the group will be changed to, 0 - 255
 		/// </summary>
-		public int ChangeValue { get; set; }
+		public uint ChangeValue { get; set; }
 
 		/// <summary>
 		/// Status boolean, null for new, true if success, false if failed
 		/// </summary>
-		public bool? ChangeStatus { get; set; }
+		public bool ChangeStatus { get; set; }
 
 		/// <summary>
 		/// Returns a JSON representation of the current object
@@ -31,7 +31,7 @@ namespace BrakelInlogApplication
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""GroupID"":{0}, ""ChangeValue"":""{1}"", ""ChangeStatus"":""{2}"" }}", GroupID, ChangeValue, ChangeStatus.ToString());
+			return String.Format(@"{{ ""GroupID"":""{0}"", ""ChangeValue"":""{1}"", ""ChangeStatus"":""{2}"" }}", GroupID, ChangeValue, ChangeStatus.ToString());
 		}
 	}
 }
