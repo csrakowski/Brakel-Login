@@ -95,7 +95,7 @@ namespace BrakelInlogApplication
 					Debug.WriteLine(ex.Message);
 					if(errorCount-- == 0)
 					{
-						OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":true ]");
+						OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
 						break;
 					}
 				}

@@ -199,7 +199,7 @@ namespace BrakelInlogApplication
 					//parse json and update changes
 					foreach (JToken item in changesArray)
 					{
-						Changes ch = changes.FirstOrDefault(i => i.GroupID.ToString() == item["GroupID"].ToString());
+						Changes ch = changes.FirstOrDefault(i => i.GroupID.ToString().Equals(item["GroupID"].ToString()));
 						if (ch != default(Changes))
 						{
 							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString);
