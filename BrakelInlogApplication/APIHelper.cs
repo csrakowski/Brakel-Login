@@ -149,6 +149,8 @@ namespace BrakelInlogApplication
 				if (buildingId != 0)
 				{
 					JObject result = null;
+					TcpClient socket = null;
+					NetworkStream stream = null;
 					try
 					{
 						#region Convert objects to JSON
@@ -158,7 +160,7 @@ namespace BrakelInlogApplication
 							);
 						if (requestBody.Length > 1)
 							requestBody = requestBody.Substring(1);
-						requestBody = @"{""changes"":[" + requestBody + "]}";
+						requestBody = @"{""changes"":[" + requestBody + "]}\n";
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						#endregion
 						#region Make Request
@@ -166,11 +168,11 @@ namespace BrakelInlogApplication
 						string host = targetBuilding.Split (':')[0];
 						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 
-						TcpClient socket = new TcpClient(host, port);
+						socket = new TcpClient(host, port);
 						socket.SendTimeout = ConstantHelper.BuildingTimeout;
 						socket.ReceiveTimeout = ConstantHelper.BuildingTimeout;
 
-						NetworkStream stream = socket.GetStream();
+						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();
 
@@ -189,6 +191,13 @@ namespace BrakelInlogApplication
 							i => i.ChangeStatus = false
 						);
 						return changes;
+					}
+					finally
+					{
+						if(stream != null)
+							stream.Close();
+						if(socket != null)
+							socket.Close();
 					}
 
 					var changesArray = result["changes"] as JArray;

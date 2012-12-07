@@ -49,70 +49,89 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building to poll</param>
 		public void StartPollingBuilding (Guid userToken, int buildingId)
 		{
-			//ThreadPool.QueueUserWorkItem(StartAsyncTask, null);
-			//private void StartAsyncTask(Object workItemState)
+			object[] args = { userToken, buildingId, OnResultChanged };
+			ThreadPool.QueueUserWorkItem(BackgroundPollerWorker.StartAsyncTask, args);
+		}
 
-			int errorCount = ConstantHelper.MaxPollErrors;
-
-			string requestBody = @"{""command"":""progress""}";
-			string targetBuilding = Building.GetBuildingIp(buildingId);
-
-			bool notDone = true;
-			while (notDone)
+		private class BackgroundPollerWorker
+		{
+			public static void StartAsyncTask(Object workItemState)
 			{
-				Thread.Sleep(ConstantHelper.PollInterval);
+				Guid userToken = (Guid)((object[])workItemState)[0];
+				int buildingId = (int)((object[])workItemState)[1];
+				PollingResult OnResultChanged = (PollingResult)((object[])workItemState)[2];
 
-				JObject result = null;
-				try
+				int errorCount = ConstantHelper.MaxPollErrors;
+				
+				string requestBody = @"{""command"":""progress""}\n";
+				string targetBuilding = Building.GetBuildingIp(buildingId);
+				
+				bool notDone = true;
+				while (notDone)
 				{
-					#region Make Request
-					string host = targetBuilding.Split (':')[0];
-					int port = Int32.Parse (targetBuilding.Split (':')[1]);
-					byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-
-					TcpClient socket = new TcpClient(host, port);
-					NetworkStream stream = socket.GetStream();
-					stream.Write(byte1, 0, byte1.Length);
-					stream.Flush();
+					Thread.Sleep(ConstantHelper.PollInterval);
 					
-					byte[] buff = new byte[2048];
-					int bytesRead = stream.Read(buff, 0, buff.Length);
-					string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
-
-					Debug.WriteLine(resultString);
-					result = JObject.Parse(resultString);
-					#endregion
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.Message);
-					if(errorCount-- == 0)
+					JObject result = null;
+					TcpClient socket = null;
+					NetworkStream stream = null;
+					try
 					{
-						OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
-						break;
+						#region Make Request
+						string host = targetBuilding.Split (':')[0];
+						int port = Int32.Parse (targetBuilding.Split (':')[1]);
+						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
+						
+						socket = new TcpClient(host, port);
+						stream = socket.GetStream();
+						stream.Write(byte1, 0, byte1.Length);
+						stream.Flush();
+						
+						byte[] buff = new byte[2048];
+						int bytesRead = stream.Read(buff, 0, buff.Length);
+						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
+						
+						Debug.WriteLine(resultString);
+						result = JObject.Parse(resultString);
+						#endregion
 					}
-				}
-
-				if (result != null)
-				{
-					var changesArray = result["changes"] as JArray;
-					if (changesArray.Count == 0)
+					catch (Exception ex)
 					{
-						notDone = false;
-					}
-					else
-					{
-						var resultArray = new JArray();
-						foreach (JToken item in changesArray)
+						Debug.WriteLine(ex.Message);
+						if(errorCount-- == 0)
 						{
-							if (Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString))
-							{
-								resultArray.Add(item);
-							}
+							OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
+							break;
 						}
-						if (resultArray.Count > 0)
+					}
+					finally
+					{
+						if(stream != null)
+							stream.Close();
+						if(socket != null)
+							socket.Close();
+					}
+					
+					if (result != null)
+					{
+						var changesArray = result["changes"] as JArray;
+						if (changesArray.Count == 0)
 						{
-							OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
+							notDone = false;
+						}
+						else
+						{
+							var resultArray = new JArray();
+							foreach (JToken item in changesArray)
+							{
+								if (Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString))
+								{
+									resultArray.Add(item);
+								}
+							}
+							if (resultArray.Count > 0)
+							{
+								OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
+							}
 						}
 					}
 				}
