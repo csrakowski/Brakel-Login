@@ -41,7 +41,7 @@ namespace BrakelInlogApplication
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""BuildingID"":{0}, ""BuildingName"":""{1}"", ""AccessRole"":""{2}"", ""Parent"":{3}, ""HasAlarm"":{4} }}",
+			return String.Format(@"{{""BuildingID"":{0},""BuildingName"":""{1}"",""AccessRole"":""{2}"",""Parent"":{3},""HasAlarm"":{4}}}",
 			                     BuildingID, BuildingName, AccessRole.ToString(), Parent, HasAlarm.ToString().ToLower());
 		}
 

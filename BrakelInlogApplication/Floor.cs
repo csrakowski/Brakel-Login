@@ -35,9 +35,9 @@ namespace BrakelInlogApplication
 			if (arrayJSON.Length > 0)
 				arrayJSON = arrayJSON.Substring(1);
 
-			result = result.Substring(0, result.Length - 2);
+			result = result.Substring(0, result.Length - 1);
 
-			result = String.Format(@"{0}, ""Rooms"":[{1}]}}", result, arrayJSON);
+			result = String.Format(@"{0},""Rooms"":[{1}]}}", result, arrayJSON);
 			return result;
 		}
 	}

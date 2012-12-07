@@ -360,7 +360,7 @@ namespace BrakelInlogApplication
 											for (uint j = 0; j < max; j++)
 											{
 												changes.Add(new Changes { GroupID = (1 + j), ChangeValue = (uint)r.Next(0, 255) });
-											}											
+											}
 										}
 										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(

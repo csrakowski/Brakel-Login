@@ -158,7 +158,7 @@ namespace BrakelInlogApplication
 							);
 						if (requestBody.Length > 1)
 							requestBody = requestBody.Substring(1);
-						requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
+						requestBody = @"{""changes"":[" + requestBody + "]}";
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						#endregion
 						#region Make Request
@@ -167,6 +167,9 @@ namespace BrakelInlogApplication
 						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 
 						TcpClient socket = new TcpClient(host, port);
+						socket.SendTimeout = ConstantHelper.BuildingTimeout;
+						socket.ReceiveTimeout = ConstantHelper.BuildingTimeout;
+
 						NetworkStream stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();

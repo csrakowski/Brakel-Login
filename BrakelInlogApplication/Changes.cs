@@ -31,7 +31,7 @@ namespace BrakelInlogApplication
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{ ""GroupID"":""{0}"", ""ChangeValue"":""{1}"", ""ChangeStatus"":""{2}"" }}", GroupID, ChangeValue, ChangeStatus.ToString());
+			return String.Format(@"{{""GroupID"":""{0}"",""ChangeValue"":""{1}"",""ChangeStatus"":""{2}""}}", GroupID, ChangeValue, ChangeStatus.ToString().ToLower());
 		}
 	}
 }

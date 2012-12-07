@@ -54,7 +54,7 @@ namespace BrakelInlogApplication
 
 			int errorCount = ConstantHelper.MaxPollErrors;
 
-			string requestBody = @"{ ""command"": ""progress"" }\r\n\r\n";
+			string requestBody = @"{""command"":""progress""}";
 			string targetBuilding = Building.GetBuildingIp(buildingId);
 
 			bool notDone = true;
