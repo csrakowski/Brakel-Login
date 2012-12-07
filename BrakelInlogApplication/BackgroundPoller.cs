@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
+using System.Net.Sockets;
 
 namespace BrakelInlogApplication
 {
@@ -64,28 +65,20 @@ namespace BrakelInlogApplication
 				JObject result = null;
 				try
 				{
-					#region Make HTTP Request
-					var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
-					request.Method = "POST";
-					request.Timeout = ConstantHelper.BuildingTimeout;
-					request.ContentType = "application/json";
-					request.KeepAlive = false;
-					request.SendChunked = false;
-
+					#region Make Request
+					string host = targetBuilding.Split (':')[0];
+					int port = Int32.Parse (targetBuilding.Split (':')[1]);
 					byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-					request.ContentLength = byte1.Length;
-					Stream newStream = request.GetRequestStream();
-					newStream.Write(byte1, 0, byte1.Length);
-					#endregion
 
-					#region Parse Response
-					var response = (HttpWebResponse) request.GetResponse();
+					TcpClient socket = new TcpClient(host, port);
+					NetworkStream stream = socket.GetStream();
+					stream.Write(byte1, 0, byte1.Length);
+					stream.Flush();
+					
+					byte[] buff = new byte[2048];
+					int bytesRead = stream.Read(buff, 0, buff.Length);
+					string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
 
-					Stream str = response.GetResponseStream();
-					var buffer = new byte[str.Length];
-					str.Read(buffer, 0, (int) str.Length);
-
-					string resultString = Encoding.ASCII.GetString(buffer);
 					Debug.WriteLine(resultString);
 					result = JObject.Parse(resultString);
 					#endregion

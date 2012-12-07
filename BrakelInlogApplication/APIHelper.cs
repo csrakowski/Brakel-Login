@@ -8,6 +8,8 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using PushNotifications;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace BrakelInlogApplication
 {
@@ -157,30 +159,22 @@ namespace BrakelInlogApplication
 						if (requestBody.Length > 1)
 							requestBody = requestBody.Substring(1);
 						requestBody = @"{ ""changes"": [" + requestBody + "] }\r\n\r\n";
-						#endregion
-						#region Make HTTP Request
-						string targetBuilding = Building.GetBuildingIp(buildingId);
-
-						var request = (HttpWebRequest) WebRequest.Create(targetBuilding);
-						request.Method = "POST";
-						request.Timeout = ConstantHelper.BuildingTimeout;
-						request.ContentType = "application/json";
-						request.KeepAlive = false;
-						request.SendChunked = false;
-
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-						request.ContentLength = byte1.Length;
-						Stream newStream = request.GetRequestStream();
-						newStream.Write(byte1, 0, byte1.Length);
 						#endregion
-						#region Parse response
-						var response = (HttpWebResponse) request.GetResponse();
+						#region Make Request
+						string targetBuilding = Building.GetBuildingIp(buildingId);
+						string host = targetBuilding.Split (':')[0];
+						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 
-						Stream str = response.GetResponseStream();
-						var buffer = new byte[str.Length];
-						str.Read(buffer, 0, (int) str.Length);
+						TcpClient socket = new TcpClient(host, port);
+						NetworkStream stream = socket.GetStream();
+						stream.Write(byte1, 0, byte1.Length);
+						stream.Flush();
 
-						string resultString = Encoding.ASCII.GetString(buffer);
+						byte[] buff = new byte[2048];
+						int bytesRead = stream.Read(buff, 0, buff.Length);
+						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
+
 						Debug.WriteLine(resultString);
 						result = JObject.Parse(resultString);
 						#endregion
