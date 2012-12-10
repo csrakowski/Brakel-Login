@@ -116,25 +116,33 @@ namespace BrakelInlogApplication
 					
 					if (result != null)
 					{
-						var changesArray = result["changes"] as JArray;
-						if (changesArray.Count == 0)
+						try
 						{
-							done = true;
-						}
-						else
-						{
-							var resultArray = new JArray();
-							foreach (JToken item in changesArray)
+							var changesArray = result["changes"] as JArray;
+							if (changesArray.Count == 0)
 							{
-								if (Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString))
+								done = true;
+							}
+							else
+							{
+								var resultArray = new JArray();
+								foreach (JToken item in changesArray)
 								{
-									resultArray.Add(item);
+									if (Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString))
+									{
+										resultArray.Add(item);
+									}
+								}
+								if (resultArray.Count > 0)
+								{
+									OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
 								}
 							}
-							if (resultArray.Count > 0)
-							{
-								OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
-							}
+						}
+						catch(Exception e)
+						{
+							Debug.WriteLine(e.Message);
+							Debug.WriteLine(e.StackTrace);
 						}
 					}
 				}
