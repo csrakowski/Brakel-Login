@@ -66,8 +66,8 @@ namespace BrakelInlogApplication
 				string requestBody = @"{""command"":""progress""}\n";
 				string targetBuilding = Building.GetBuildingIp(buildingId);
 				
-				bool notDone = true;
-				while (notDone)
+				bool done = false;
+				while (!done)
 				{
 					Thread.Sleep(ConstantHelper.PollInterval);
 					
@@ -82,6 +82,9 @@ namespace BrakelInlogApplication
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						
 						socket = new TcpClient(host, port);
+						socket.SendTimeout = ConstantHelper.BuildingTimeout;
+						socket.ReceiveTimeout = ConstantHelper.BuildingTimeout;
+
 						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();
@@ -116,7 +119,7 @@ namespace BrakelInlogApplication
 						var changesArray = result["changes"] as JArray;
 						if (changesArray.Count == 0)
 						{
-							notDone = false;
+							done = true;
 						}
 						else
 						{
