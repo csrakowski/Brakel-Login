@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.IO;
+using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using PushNotifications;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace BrakelInlogApplication
 {
@@ -19,11 +17,6 @@ namespace BrakelInlogApplication
 	public sealed class APIHelper
 	{
 		/// <summary>
-		/// The private instance for easy instantiation
-		/// </summary>
-		private static readonly APIHelper _instance = new APIHelper();
-
-		/// <summary>
 		/// Private to prevent instantiation
 		/// </summary>
 		private APIHelper()
@@ -32,13 +25,15 @@ namespace BrakelInlogApplication
 			BackgroundPoller.Instance.OnResultChanged += OnPollingResult;
 		}
 
+		static APIHelper()
+		{
+			Instance = new APIHelper();
+		}
+
 		/// <summary>
 		/// The Instance of this class
 		/// </summary>
-		public static APIHelper Instance
-		{
-			get { return _instance; }
-		}
+		public static APIHelper Instance { get; private set; }
 
 		/// <summary>
 		/// Validates the user's credentials and returns a token that will be used to validate other requests
@@ -148,7 +143,7 @@ namespace BrakelInlogApplication
 			{
 				if (buildingId != 0)
 				{
-					JObject result = null;
+					JObject result;
 					TcpClient socket = null;
 					NetworkStream stream = null;
 					try
@@ -170,17 +165,19 @@ namespace BrakelInlogApplication
 						string host = targetBuilding.Split (':')[0];
 						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 
-						socket = new TcpClient(host, port);
-						socket.SendTimeout = ConstantHelper.BuildingTimeout;
-						socket.ReceiveTimeout = ConstantHelper.BuildingTimeout;
+						socket = new TcpClient(host, port)
+						{
+							SendTimeout = ConstantHelper.BuildingTimeout,
+							ReceiveTimeout = ConstantHelper.BuildingTimeout
+						};
 
 						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();
 
-						byte[] buff = new byte[2048];
-						int bytesRead = stream.Read(buff, 0, buff.Length);
-						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
+						var buff = new byte[2048];
+						var bytesRead = stream.Read(buff, 0, buff.Length);
+						var resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
 
 						Debug.WriteLine("Make changes response: " +resultString);
 						result = JObject.Parse(resultString);
@@ -205,14 +202,15 @@ namespace BrakelInlogApplication
 					var changesArray = result["changes"] as JArray;
 
 					//parse json and update changes
-					foreach (JToken item in changesArray)
-					{
-						Changes ch = changes.FirstOrDefault(i => i.GroupID.ToString().Equals(item["GroupID"].ToString()));
-						if (ch != default(Changes))
+					if (changesArray != null)
+						foreach (var item in changesArray)
 						{
-							ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString);
+							var ch = changes.FirstOrDefault(i => i.GroupID.ToString(CultureInfo.InvariantCulture).Equals(item["GroupID"].ToString(), StringComparison.OrdinalIgnoreCase));
+							if (ch != default(Changes))
+							{
+								ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString());
+							}
 						}
-					}
 
 					//Start background polling					
 					BackgroundPoller.Instance.StartPollingBuilding(userToken, buildingId);
@@ -292,7 +290,7 @@ namespace BrakelInlogApplication
 		{
 			Debug.WriteLine("Poll result: " + json);
 
-			string deviceID = "";
+			string deviceID;
 			using (var connection = new SqlConnection(ConstantHelper.ConnectionString)) {
 				connection.Open ();
 
@@ -401,7 +399,7 @@ namespace BrakelInlogApplication
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
-						rooms.Add(new Room()
+						rooms.Add(new Room
 						{
 							RoomID = UInt32.Parse(reader["roomId"].ToString()),
 							RoomName = reader["roomName"].ToString(),
@@ -434,12 +432,12 @@ namespace BrakelInlogApplication
 		/// </param>
 		public List<Changes> GetGroups (Guid userToken, UInt32 buildingId)
 		{
-			List<Changes> changes = new List<Changes>();
+			var changes = new List<Changes>();
 
 			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
-				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
+				var query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
 				var command = new SqlCommand(query, connection);
 				
 				//Validate token
@@ -463,16 +461,13 @@ namespace BrakelInlogApplication
 					{
 						while (reader.Read())
 						{
-							changes.Add(new Changes() {
+							changes.Add(new Changes							
+							{
 								GroupID = UInt32.Parse(reader["GroupID"].ToString()),
 								GroupName = reader["GroupName"].ToString(),
 								ChangeValue = UInt32.Parse(reader["ChangeValue"].ToString())
 							});
 						}
-					}
-					else
-					{
-						//throw new APIException("The provided buildingId is invalid", "buildingId");
 					}
 				}
 			}

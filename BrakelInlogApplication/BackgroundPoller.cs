@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
@@ -55,17 +53,17 @@ namespace BrakelInlogApplication
 			ThreadPool.QueueUserWorkItem(BackgroundPollerWorker.StartAsyncTask, args);
 		}
 
-		private class BackgroundPollerWorker
+		private static class BackgroundPollerWorker
 		{
 			public static void StartAsyncTask(Object workItemState)
 			{
-				Guid userToken = (Guid)((object[])workItemState)[0];
-				UInt32 buildingId = (UInt32)((object[])workItemState)[1];
-				PollingResult OnResultChanged = (PollingResult)((object[])workItemState)[2];
+				var userToken = (Guid)((object[])workItemState)[0];
+				var buildingId = (UInt32)((object[])workItemState)[1];
+				var onResultChanged = (PollingResult)((object[])workItemState)[2];
 
 				int errorCount = ConstantHelper.MaxPollErrors;
 				
-				string requestBody = @"{""command"":""progress""}\n";
+				const string requestBody = @"{""command"":""progress""}\n";
 				string targetBuilding = Building.GetBuildingIp(buildingId);
 
 				Debug.WriteLine("Start polling");
@@ -85,9 +83,11 @@ namespace BrakelInlogApplication
 						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						
-						socket = new TcpClient(host, port);
-						socket.SendTimeout = ConstantHelper.BuildingTimeout;
-						socket.ReceiveTimeout = ConstantHelper.BuildingTimeout;
+						socket = new TcpClient(host, port)
+						{
+							SendTimeout = ConstantHelper.BuildingTimeout,
+							ReceiveTimeout = ConstantHelper.BuildingTimeout
+						};
 
 						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
@@ -95,9 +95,9 @@ namespace BrakelInlogApplication
 
 						Debug.WriteLine("Polling request: " +requestBody);
 						
-						byte[] buff = new byte[2048];
-						int bytesRead = stream.Read(buff, 0, buff.Length);
-						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
+						var buff = new byte[2048];
+						var bytesRead = stream.Read(buff, 0, buff.Length);
+						var resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
 
 						Debug.WriteLine("Polling response: " +resultString);
 						result = JObject.Parse(resultString);
@@ -108,8 +108,7 @@ namespace BrakelInlogApplication
 						Debug.WriteLine("Polling error: " + ex.Message);
 						if(--errorCount <= 0)
 						{
-							done = true;
-							OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
+							onResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
 							break;
 						}
 					}
@@ -126,6 +125,7 @@ namespace BrakelInlogApplication
 						try
 						{
 							var changesArray = result["changes"] as JArray;
+							if (changesArray == null) continue;
 							if (changesArray.Count == 0)
 							{
 								done = true;
@@ -133,9 +133,9 @@ namespace BrakelInlogApplication
 							else
 							{
 								var resultArray = new JArray();
-								foreach (JToken item in changesArray)
+								foreach (var item in changesArray)
 								{
-									if (Boolean.Parse(item["ChangeStatus"].ToString() ?? Boolean.FalseString))
+									if (Boolean.Parse(item["ChangeStatus"].ToString()))
 									{
 										resultArray.Add(item);
 									}
@@ -143,7 +143,7 @@ namespace BrakelInlogApplication
 								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
 								if (resultArray.Count > 0)
 								{
-									OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
+									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
 								}
 							}
 						}

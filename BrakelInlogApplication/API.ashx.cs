@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Web;
 using PushNotifications;
@@ -315,8 +316,8 @@ namespace BrakelInlogApplication
 									UInt32 buildingId;
 									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
-										string layoutXMLString = APIHelper.Instance.GetUserLayout(userToken, buildingId);
-										result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
+										string layoutXmlString = APIHelper.Instance.GetUserLayout(userToken, buildingId);
+										result = @"{ ""layout"":""" + layoutXmlString.Replace("\"", "\\\"") + @"""}";
 									}
 									else
 									{
@@ -346,13 +347,13 @@ namespace BrakelInlogApplication
 									{
 										string changesString = _context.Request.Form["changes"] ?? "[]";
 										var obj = JArray.Parse(changesString);
-										var changes = new List<Changes>();
-										foreach (var item in obj) {
-											changes.Add (new Changes() {
-												GroupID = UInt32.Parse (item["GroupID"].ToString()),
-												ChangeValue = UInt32.Parse (item["ChangeValue"].ToString())
-											});
-										}
+										var changes = obj.Select(
+											item => new Changes
+											{
+												GroupID = UInt32.Parse(item["GroupID"].ToString()),
+												ChangeValue = UInt32.Parse(item["ChangeValue"].ToString())
+											}
+										).ToList();
 										if(changes.Count == 0)
 										{
 											var r = new Random();
