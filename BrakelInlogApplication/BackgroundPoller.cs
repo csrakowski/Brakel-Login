@@ -104,7 +104,7 @@ namespace BrakelInlogApplication
 					catch (Exception ex)
 					{
 						Debug.WriteLine("Polling error: " + ex.Message);
-						if(--errorCount == 0)
+						if(--errorCount <= 0)
 						{
 							done = true;
 							OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
