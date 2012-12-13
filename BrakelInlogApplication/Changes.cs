@@ -13,7 +13,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The group id this change will affect
 		/// </summary>
-		public uint GroupID { get; set; }
+		public UInt32 GroupID { get; set; }
 
 		/// <summary>
 		/// Gets or sets the name of the group.
@@ -26,12 +26,12 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The value the group will be changed to, 0 - 255
 		/// </summary>
-		public uint ChangeValue { get; set; }
+		public UInt32 ChangeValue { get; set; }
 
 		/// <summary>
 		/// Status boolean, null for new, true if success, false if failed
 		/// </summary>
-		public bool ChangeStatus { get; set; }
+		public Boolean ChangeStatus { get; set; }
 
 		/// <summary>
 		/// Returns a JSON representation of the current object

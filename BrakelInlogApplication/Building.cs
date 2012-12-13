@@ -10,7 +10,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The building id used to identify the building
 		/// </summary>
-		public int BuildingID { get; set; }
+		public UInt32 BuildingID { get; set; }
 
 		/// <summary>
 		/// The name of the building for human readable context
@@ -25,7 +25,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// Parent building of the current building, 0 if none
 		/// </summary>
-		public int Parent { get; set; }
+		public UInt32 Parent { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether this instance has alarm.
@@ -33,7 +33,7 @@ namespace BrakelInlogApplication
 		/// <value>
 		/// <c>true</c> if this instance has alarm; otherwise, <c>false</c>.
 		/// </value>
-		public bool HasAlarm { get; set; }
+		public Boolean HasAlarm { get; set; }
 
 		/// <summary>
 		/// Returns a JSON representation of the current object
@@ -50,7 +50,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <param name="rightsName">The string representation of the AccessRole</param>
 		/// <returns>The AccessRole</returns>
-		public static AccessRole ParseAccessRightsFromString(string rightsName)
+		public static AccessRole ParseAccessRightsFromString(String rightsName)
 		{
 			switch (rightsName)
 			{
@@ -78,7 +78,7 @@ namespace BrakelInlogApplication
 		/// <param name='buildingId'>
 		/// Building identifier.
 		/// </param>
-		public static String GetBuildingIp(int buildingId)
+		public static String GetBuildingIp(UInt32 buildingId)
 		{
 			//TODO: Get ip from database based on building id
 			return ConstantHelper.TestBuilding;

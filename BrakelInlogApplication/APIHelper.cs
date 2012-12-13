@@ -47,7 +47,7 @@ namespace BrakelInlogApplication
 		/// <param name="passwordHash">The hashed password</param>
 		/// <param name="device">The deviceId of the iPhone or iPad</param>
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
-		public Guid Login(string username, string passwordHash, string device)
+		public Guid Login(String username, String passwordHash, String device)
 		{
 			Guid userToken = Guid.Empty;
 
@@ -123,9 +123,9 @@ namespace BrakelInlogApplication
 						buildings.Add(new Building
 						{
 					  		AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-						  	BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingID = UInt32.Parse(reader["buildingId"].ToString()),
 						 	BuildingName = reader["name"].ToString(),
-							Parent = Int32.Parse(reader["parentId"].ToString()),
+							Parent = UInt32.Parse(reader["parentId"].ToString()),
 							HasAlarm = Boolean.Parse(reader["hasAlarm"].ToString())
 						});
 					}
@@ -142,7 +142,7 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building id for the building in which the groups are</param>
 		/// <param name="changes">The list of changes you want to commit</param>
 		/// <returns>The list of changes with a boolean value to indicate succes of the operation per change</returns>
-		public List<Changes> MakeChangesToGroups(Guid userToken, int buildingId, List<Changes> changes)
+		public List<Changes> MakeChangesToGroups(Guid userToken, UInt32 buildingId, List<Changes> changes)
 		{
 			if (userToken != Guid.Empty)
 			{
@@ -235,7 +235,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The current user's token</param>
 		/// <param name="buildingId">The building for which you want the layout</param>
 		/// <returns>A string representation of the XML, which describes the layout of the application</returns>
-		public string GetUserLayout(Guid userToken, int buildingId)
+		public string GetUserLayout(Guid userToken, UInt32 buildingId)
 		{
 			string resultLayout = "";
 
@@ -286,7 +286,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="buildingId">The building this result is about</param>
 		/// <param name="json">The result in JSON format</param>
-		public static void OnPollingResult (Guid userToken, int buildingId, string json)
+		public static void OnPollingResult (Guid userToken, UInt32 buildingId, String json)
 		{
 			string deviceID = "";
 			using (var connection = new SqlConnection(ConstantHelper.ConnectionString)) {
@@ -309,7 +309,7 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building id</param>
 		/// <param name="getRoomsRecursivly">boolean to indicate if rooms should be retrieved recursivly, or ignored</param>
 		/// <returns>The list of Floors</returns>
-		public List<Floor> GetFloors(Guid userToken, int buildingId, bool getRoomsRecursivly)
+		public List<Floor> GetFloors(Guid userToken, UInt32 buildingId, Boolean getRoomsRecursivly)
 		{
 			var floors = new List<Floor>();
 
@@ -346,9 +346,9 @@ namespace BrakelInlogApplication
 						var floor = new Floor
 						{
 							AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
-							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingID = UInt32.Parse(reader["buildingId"].ToString()),
 							BuildingName = reader["name"].ToString(),
-							Parent = Int32.Parse(reader["parentId"].ToString()),
+							Parent = UInt32.Parse(reader["parentId"].ToString()),
 							HasAlarm = Boolean.Parse(reader["hasAlarm"].ToString())
 						};
 						if (getRoomsRecursivly)
@@ -369,7 +369,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The current user's token</param>
 		/// <param name="floorId">The floor id</param>
 		/// <returns>The list of rooms</returns>
-		public List<Room> GetRooms(Guid userToken, int floorId)
+		public List<Room> GetRooms(Guid userToken, UInt32 floorId)
 		{
 			var rooms = new List<Room>();
 
@@ -399,13 +399,13 @@ namespace BrakelInlogApplication
 					{
 						rooms.Add(new Room()
 						{
-							RoomID = Int32.Parse(reader["roomId"].ToString()),
+							RoomID = UInt32.Parse(reader["roomId"].ToString()),
 							RoomName = reader["roomName"].ToString(),
-							BuildingID = Int32.Parse(reader["buildingId"].ToString()),
+							BuildingID = UInt32.Parse(reader["buildingId"].ToString()),
 							XCoordinate = Int32.Parse(reader["xCoordinate"].ToString()),
 							YCoordinate = Int32.Parse(reader["yCoordinate"].ToString()),
-							Width = Int32.Parse(reader["width"].ToString()),
-							Height = Int32.Parse(reader["height"].ToString()),
+							Width = UInt32.Parse(reader["width"].ToString()),
+							Height = UInt32.Parse(reader["height"].ToString()),
 							IsEnabled = Boolean.Parse(reader["enabled"].ToString()),
 							HasAlarmValue = Boolean.Parse(reader["hasAlarm"].ToString())
 						});
@@ -416,14 +416,49 @@ namespace BrakelInlogApplication
 			return rooms;
 		}
 
-		public List<Changes> GetGroups (Guid userToken, int buildingId)
+		public List<Changes> GetGroups (Guid userToken, UInt32 buildingId)
 		{
 			List<Changes> changes = new List<Changes>();
-			var r = new Random();
-			var max = r.Next(2, 5);
-			for (uint j = 0; j < max; j++)
+
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
-				changes.Add(new Changes { GroupID = (1 + j), GroupName = String.Format("Sturingsgroep {0}", 1 + j) , ChangeValue = (uint)r.Next(0, 255) });
+				connection.Open();
+				string query = String.Format("SELECT [username] FROM [token] WHERE [token] = '{0}'", userToken);
+				var command = new SqlCommand(query, connection);
+				
+				//Validate token
+				var username = command.ExecuteScalar() as String;
+				if (String.IsNullOrWhiteSpace(username))
+				{
+					throw new APIException("The provided userToken is invalid or has expired", "userToken");
+				}
+				else
+				{
+					query = String.Format(@"SELECT [group].* FROM [group]
+													LEFT JOIN [userBuildingCouple] ON [userBuildingCouple].[buildingId] = [group].[BuildingId]
+													LEFT JOIN [user] ON [user].[userId] = [userBuildingCouple].[userId]
+											WHERE [userBuildingCouple].[BuildingId] = {0} AND [user].[username] = '{1}' AND [userBuildingCouple].[accessRights] = '{2}'",
+					                      buildingId, username, AccessRole.Administrator.ToString());
+
+					command = new SqlCommand(query, connection);
+
+					SqlDataReader reader = command.ExecuteReader();
+					if (reader.HasRows)
+					{
+						while (reader.Read())
+						{
+							changes.Add(new Changes() {
+								GroupID = UInt32.Parse(reader["GroupID"].ToString()),
+								GroupName = reader["GroupName"].ToString(),
+								ChangeValue = UInt32.Parse(reader["ChangeValue"].ToString())
+							});
+						}
+					}
+					else
+					{
+						//throw new APIException("The provided buildingId is invalid", "buildingId");
+					}
+				}
 			}
 			return changes;
 		}

@@ -238,14 +238,14 @@ namespace BrakelInlogApplication
 							{
 								#region Prepare to handle getFloors request
 
-								string userTokenString = _context.Request.Form["userToken"];
-								string buildingIdString = _context.Request.Form["buildingId"];
-								bool getRooms = Boolean.Parse(_context.Request.Form["getRooms"] ?? Boolean.FalseString);
+								String userTokenString = _context.Request.Form["userToken"];
+								String buildingIdString = _context.Request.Form["buildingId"];
+								Boolean getRooms = Boolean.Parse(_context.Request.Form["getRooms"] ?? Boolean.FalseString);
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									int buildingId;
-									if (Int32.TryParse(buildingIdString, out buildingId))
+									UInt32 buildingId;
+									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
 										List<Floor> floors = APIHelper.Instance.GetFloors(userToken, buildingId, getRooms);
 										floors.ForEach(
@@ -278,8 +278,8 @@ namespace BrakelInlogApplication
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									int floorId;
-									if (Int32.TryParse(floorIdString, out floorId))
+									UInt32 floorId;
+									if (UInt32.TryParse(floorIdString, out floorId))
 									{
 										List<Room> rooms = APIHelper.Instance.GetRooms(userToken, floorId);
 										rooms.ForEach(
@@ -312,8 +312,8 @@ namespace BrakelInlogApplication
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									int buildingId;
-									if (Int32.TryParse(buildingIdString, out buildingId))
+									UInt32 buildingId;
+									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
 										string layoutXMLString = APIHelper.Instance.GetUserLayout(userToken, buildingId);
 										result = @"{ ""layout"":""" + layoutXMLString.Replace("\"", "\\\"") + @"""}";
@@ -341,8 +341,8 @@ namespace BrakelInlogApplication
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									int buildingId;
-									if (Int32.TryParse(buildingIdString, out buildingId))
+									UInt32 buildingId;
+									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
 										string changesString = _context.Request.Form["changes"] ?? "[]";
 										var obj = JArray.Parse(changesString);
@@ -393,8 +393,8 @@ namespace BrakelInlogApplication
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									int buildingId;
-									if (Int32.TryParse(buildingIdString, out buildingId))
+									UInt32 buildingId;
+									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
 										List<Changes> changes = APIHelper.Instance.GetGroups(userToken, buildingId);
 										changes.ForEach(

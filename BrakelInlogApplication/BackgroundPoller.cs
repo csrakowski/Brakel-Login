@@ -21,7 +21,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="building">The building this result is about</param>
 		/// <param name="json">The result in JSON format</param>
-		public delegate void PollingResult(Guid userToken, int building, string json);
+		public delegate void PollingResult(Guid userToken, UInt32 building, String json);
 		#endregion
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="buildingId">The building to poll</param>
-		public void StartPollingBuilding (Guid userToken, int buildingId)
+		public void StartPollingBuilding (Guid userToken, UInt32 buildingId)
 		{
 			object[] args = { userToken, buildingId, OnResultChanged };
 			ThreadPool.QueueUserWorkItem(BackgroundPollerWorker.StartAsyncTask, args);
@@ -58,7 +58,7 @@ namespace BrakelInlogApplication
 			public static void StartAsyncTask(Object workItemState)
 			{
 				Guid userToken = (Guid)((object[])workItemState)[0];
-				int buildingId = (int)((object[])workItemState)[1];
+				UInt32 buildingId = (UInt32)((object[])workItemState)[1];
 				PollingResult OnResultChanged = (PollingResult)((object[])workItemState)[2];
 
 				int errorCount = ConstantHelper.MaxPollErrors;

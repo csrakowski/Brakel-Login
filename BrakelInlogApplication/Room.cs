@@ -10,7 +10,7 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// The room id used to identify the room
 		/// </summary>
-		public int RoomID { get; set; }
+		public UInt32 RoomID { get; set; }
 
 		/// <summary>
 		/// Optional name of the room for human readable context
@@ -20,37 +20,37 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// Parent building of the current room
 		/// </summary>
-		public int BuildingID { get; set; }
+		public UInt32 BuildingID { get; set; }
 
 		/// <summary>
 		/// The X Coordinate of the room on the map
 		/// </summary>
-		public int XCoordinate { get; set; }
+		public Int32 XCoordinate { get; set; }
 
 		/// <summary>
 		/// The Y Coordinate of the room on the map
 		/// </summary>
-		public int YCoordinate { get; set; }
+		public Int32 YCoordinate { get; set; }
 
 		/// <summary>
 		/// The width of the room on the map
 		/// </summary>
-		public int Width { get; set; }
+		public UInt32 Width { get; set; }
 
 		/// <summary>
 		/// The height of the room on the map
 		/// </summary>
-		public int Height { get; set; }
+		public UInt32 Height { get; set; }
 
 		/// <summary>
 		/// Boolean value to indicate wether the room is clickable
 		/// </summary>
-		public bool IsEnabled { get; set; }
+		public Boolean IsEnabled { get; set; }
 
 		/// <summary>
 		/// Boolean value to indicate wether the room is currently in alarm mode
 		/// </summary>
-		public bool HasAlarmValue { get; set; }
+		public Boolean HasAlarmValue { get; set; }
 
 		/// <summary>
 		/// Returns a JSON representation of the current object
