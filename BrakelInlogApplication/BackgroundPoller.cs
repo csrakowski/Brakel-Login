@@ -137,7 +137,8 @@ namespace BrakelInlogApplication
 										resultArray.Add(item);
 
 										sqlQuery += String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}
-																	GO", item["ChangeValue"], item["GroupID"], buildingId);
+																	GO
+																	", item["ChangeValue"], item["GroupID"], buildingId);
 									}
 								}
 								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
