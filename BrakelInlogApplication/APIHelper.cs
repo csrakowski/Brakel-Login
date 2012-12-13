@@ -420,6 +420,18 @@ namespace BrakelInlogApplication
 			return rooms;
 		}
 
+		/// <summary>
+		/// Gets the groups.
+		/// </summary>
+		/// <returns>
+		/// The groups.
+		/// </returns>
+		/// <param name='userToken'>
+		/// User token.
+		/// </param>
+		/// <param name='buildingId'>
+		/// Building identifier.
+		/// </param>
 		public List<Changes> GetGroups (Guid userToken, UInt32 buildingId)
 		{
 			List<Changes> changes = new List<Changes>();

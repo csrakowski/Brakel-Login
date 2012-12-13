@@ -16,7 +16,7 @@ namespace PushNotifications
     /// <summary>
     /// PushNotification helper class
     /// </summary>
-    public class PushNotification
+    public sealed class PushNotification
     {
 		/// <summary>
 		/// Internal counter

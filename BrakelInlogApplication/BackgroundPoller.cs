@@ -34,7 +34,9 @@ namespace BrakelInlogApplication
 		/// </summary>
 		private BackgroundPoller()
 		{
-			//init thread pool
+			//.NET 4 optimizes throughput by default, best leave that algorithm alone.
+			//ThreadPool.SetMinThreads(5, 5);
+			//ThreadPool.SetMaxThreads(50, 50);
 		}
 
 		/// <summary>
