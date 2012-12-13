@@ -16,6 +16,14 @@ namespace BrakelInlogApplication
 		public uint GroupID { get; set; }
 
 		/// <summary>
+		/// Gets or sets the name of the group.
+		/// </summary>
+		/// <value>
+		/// The name of the group.
+		/// </value>
+		public String GroupName { get; set; }
+
+		/// <summary>
 		/// The value the group will be changed to, 0 - 255
 		/// </summary>
 		public uint ChangeValue { get; set; }
@@ -31,7 +39,7 @@ namespace BrakelInlogApplication
 		/// <returns>The JSON representing the current object</returns>
 		public String ToJSONString()
 		{
-			return String.Format(@"{{""GroupID"":""{0}"",""ChangeValue"":""{1}"",""ChangeStatus"":""{2}""}}", GroupID, ChangeValue, ChangeStatus.ToString().ToLower());
+			return String.Format(@"{{""GroupID"":""{0}"",""GroupName"":""{1}"", ""ChangeValue"":""{2}"",""ChangeStatus"":""{3}""}}", GroupID, GroupName, ChangeValue, ChangeStatus.ToString().ToLower());
 		}
 	}
 }

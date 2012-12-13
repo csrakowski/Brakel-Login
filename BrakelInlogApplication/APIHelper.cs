@@ -415,5 +415,17 @@ namespace BrakelInlogApplication
 			//return collection
 			return rooms;
 		}
+
+		public List<Changes> GetGroups (Guid userToken, int buildingId)
+		{
+			List<Changes> changes = new List<Changes>();
+			var r = new Random();
+			var max = r.Next(2, 5);
+			for (uint j = 0; j < max; j++)
+			{
+				changes.Add(new Changes { GroupID = (1 + j), GroupName = String.Format("Sturingsgroep {0}", 1 + j) , ChangeValue = (uint)r.Next(0, 255) });
+			}
+			return changes;
+		}
 	}
 }

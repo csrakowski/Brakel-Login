@@ -384,6 +384,31 @@ namespace BrakelInlogApplication
 
 								break;
 							}
+						case "getGroups":
+							{
+								#region Prepare to handle getGroups request
+
+								string userTokenString = _context.Request.Form["userToken"] ?? Guid.NewGuid().ToString();
+								string buildingIdString = _context.Request.Form["buildingId"] ?? "1";
+								Guid userToken;
+								if (Guid.TryParse(userTokenString, out userToken))
+								{
+									int buildingId;
+									if (Int32.TryParse(buildingIdString, out buildingId))
+									{
+										List<Changes> changes = APIHelper.Instance.GetGroups(userToken, buildingId);
+										changes.ForEach(
+											i => result += ("," + i.ToJSONString())
+										);
+										if (result.Length > 1)
+											result = result.Substring(1);
+										result = @" { ""groups"": [" + result + "] }";
+									}
+								}
+								#endregion
+
+								break;
+							}
 						case "testPush":
 							{
 								#region Handle testPush
@@ -394,7 +419,7 @@ namespace BrakelInlogApplication
 								result = String.Format(@"{{ ""status"":{0} }}", status.ToString().ToLower());
 								
 								#endregion
-
+								
 								break;
 							}
 						default:
