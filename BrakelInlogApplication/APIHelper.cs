@@ -14,26 +14,13 @@ namespace BrakelInlogApplication
 	/// <summary>
 	/// The actual implementation of the API calls happens in this helper class
 	/// </summary>
-	public sealed class APIHelper
+	public static class APIHelper
 	{
-		/// <summary>
-		/// Private to prevent instantiation
-		/// </summary>
-		private APIHelper()
-		{
-			//Register event handler for background polling
-			BackgroundPoller.Instance.OnResultChanged += OnPollingResult;
-		}
-
 		static APIHelper()
 		{
-			Instance = new APIHelper();
+			//Register event handler for background polling
+			BackgroundPoller.OnResultChanged += OnPollingResult;
 		}
-
-		/// <summary>
-		/// The Instance of this class
-		/// </summary>
-		public static APIHelper Instance { get; private set; }
 
 		/// <summary>
 		/// Validates the user's credentials and returns a token that will be used to validate other requests
@@ -42,7 +29,7 @@ namespace BrakelInlogApplication
 		/// <param name="passwordHash">The hashed password</param>
 		/// <param name="device">The deviceId of the iPhone or iPad</param>
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
-		public Guid Login(String username, String passwordHash, String device)
+		public static Guid Login(String username, String passwordHash, String device)
 		{
 			Guid userToken = Guid.Empty;
 
@@ -82,7 +69,7 @@ namespace BrakelInlogApplication
 		/// </summary>
 		/// <param name="userToken">The current user's token</param>
 		/// <returns>The list of Buildings</returns>
-		public List<Building> GetBuildings(Guid userToken)
+		public static List<Building> GetBuildings(Guid userToken)
 		{
 			var buildings = new List<Building>();
 
@@ -137,7 +124,7 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building id for the building in which the groups are</param>
 		/// <param name="changes">The list of changes you want to commit</param>
 		/// <returns>The list of changes with a boolean value to indicate succes of the operation per change</returns>
-		public List<Changes> MakeChangesToGroups(Guid userToken, UInt32 buildingId, List<Changes> changes)
+		public static List<Changes> MakeChangesToGroups(Guid userToken, UInt32 buildingId, List<Changes> changes)
 		{
 			if (userToken != Guid.Empty)
 			{
@@ -213,7 +200,7 @@ namespace BrakelInlogApplication
 						}
 
 					//Start background polling					
-					BackgroundPoller.Instance.StartPollingBuilding(userToken, buildingId);
+					BackgroundPoller.StartPollingBuilding(userToken, buildingId);
 
 					//return initial result
 					return changes;
@@ -235,7 +222,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The current user's token</param>
 		/// <param name="buildingId">The building for which you want the layout</param>
 		/// <returns>A string representation of the XML, which describes the layout of the application</returns>
-		public string GetUserLayout(Guid userToken, UInt32 buildingId)
+		public static string GetUserLayout(Guid userToken, UInt32 buildingId)
 		{
 			string resultLayout = "";
 
@@ -311,7 +298,7 @@ namespace BrakelInlogApplication
 		/// <param name="buildingId">The building id</param>
 		/// <param name="getRoomsRecursivly">boolean to indicate if rooms should be retrieved recursivly, or ignored</param>
 		/// <returns>The list of Floors</returns>
-		public List<Floor> GetFloors(Guid userToken, UInt32 buildingId, Boolean getRoomsRecursivly)
+		public static List<Floor> GetFloors(Guid userToken, UInt32 buildingId, Boolean getRoomsRecursivly)
 		{
 			var floors = new List<Floor>();
 
@@ -371,7 +358,7 @@ namespace BrakelInlogApplication
 		/// <param name="userToken">The current user's token</param>
 		/// <param name="floorId">The floor id</param>
 		/// <returns>The list of rooms</returns>
-		public List<Room> GetRooms(Guid userToken, UInt32 floorId)
+		public static List<Room> GetRooms(Guid userToken, UInt32 floorId)
 		{
 			var rooms = new List<Room>();
 
@@ -430,7 +417,7 @@ namespace BrakelInlogApplication
 		/// <param name='buildingId'>
 		/// Building identifier.
 		/// </param>
-		public List<Changes> GetGroups (Guid userToken, UInt32 buildingId)
+		public static List<Changes> GetGroups(Guid userToken, UInt32 buildingId)
 		{
 			var changes = new List<Changes>();
 

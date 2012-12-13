@@ -193,7 +193,7 @@ namespace BrakelInlogApplication
 								{
 									if (!String.IsNullOrWhiteSpace(hash))
 									{
-										Guid userToken = APIHelper.Instance.Login(username, hash, device);
+										Guid userToken = APIHelper.Login(username, hash, device);
 										result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
 									}
 									else
@@ -218,7 +218,7 @@ namespace BrakelInlogApplication
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{
-									List<Building> buildings = APIHelper.Instance.GetBuildings(userToken);
+									List<Building> buildings = APIHelper.GetBuildings(userToken);
 									buildings.ForEach(
 										i => result += ("," + i.ToJSONString())
 										);
@@ -248,7 +248,7 @@ namespace BrakelInlogApplication
 									UInt32 buildingId;
 									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
-										List<Floor> floors = APIHelper.Instance.GetFloors(userToken, buildingId, getRooms);
+										List<Floor> floors = APIHelper.GetFloors(userToken, buildingId, getRooms);
 										floors.ForEach(
 											i => result += ("," + i.ToJSONString())
 											);
@@ -282,7 +282,7 @@ namespace BrakelInlogApplication
 									UInt32 floorId;
 									if (UInt32.TryParse(floorIdString, out floorId))
 									{
-										List<Room> rooms = APIHelper.Instance.GetRooms(userToken, floorId);
+										List<Room> rooms = APIHelper.GetRooms(userToken, floorId);
 										rooms.ForEach(
 											i => result += ("," + i.ToJSONString())
 											);
@@ -316,7 +316,7 @@ namespace BrakelInlogApplication
 									UInt32 buildingId;
 									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
-										string layoutXmlString = APIHelper.Instance.GetUserLayout(userToken, buildingId);
+										string layoutXmlString = APIHelper.GetUserLayout(userToken, buildingId);
 										result = @"{ ""layout"":""" + layoutXmlString.Replace("\"", "\\\"") + @"""}";
 									}
 									else
@@ -363,7 +363,7 @@ namespace BrakelInlogApplication
 												changes.Add(new Changes { GroupID = (1 + j), ChangeValue = (uint)r.Next(0, 255) });
 											}
 										}
-										changes = APIHelper.Instance.MakeChangesToGroups(userToken, buildingId, changes);
+										changes = APIHelper.MakeChangesToGroups(userToken, buildingId, changes);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())
 										);
@@ -397,7 +397,7 @@ namespace BrakelInlogApplication
 									UInt32 buildingId;
 									if (UInt32.TryParse(buildingIdString, out buildingId))
 									{
-										List<Changes> changes = APIHelper.Instance.GetGroups(userToken, buildingId);
+										List<Changes> changes = APIHelper.GetGroups(userToken, buildingId);
 										changes.ForEach(
 											i => result += ("," + i.ToJSONString())
 										);

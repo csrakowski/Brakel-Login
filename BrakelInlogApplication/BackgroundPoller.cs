@@ -1,4 +1,5 @@
 using System;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -10,7 +11,7 @@ namespace BrakelInlogApplication
 	/// <summary>
 	/// Helper class to assist in background thread polling of the building
 	/// </summary>
-	public sealed class BackgroundPoller
+	public static class BackgroundPoller
 	{
 		#region Delegates
 		/// <summary>
@@ -23,14 +24,9 @@ namespace BrakelInlogApplication
 		#endregion
 
 		/// <summary>
-		/// The Instance of this class
-		/// </summary>
-		public static BackgroundPoller Instance = new BackgroundPoller();
-
-		/// <summary>
 		/// Private to prevent instantiation
 		/// </summary>
-		private BackgroundPoller()
+		static BackgroundPoller()
 		{
 			//.NET 4 optimizes throughput by default, best leave that algorithm alone.
 			//ThreadPool.SetMinThreads(5, 5);
@@ -40,14 +36,14 @@ namespace BrakelInlogApplication
 		/// <summary>
 		/// Event fired when a building result has changed
 		/// </summary>
-		public event PollingResult OnResultChanged;
+		public static event PollingResult OnResultChanged;
 
 		/// <summary>
 		/// Starts polling the target building for an update on the changes
 		/// </summary>
 		/// <param name="userToken">The userToken of the user who initiated the poll</param>
 		/// <param name="buildingId">The building to poll</param>
-		public void StartPollingBuilding (Guid userToken, UInt32 buildingId)
+		public static void StartPollingBuilding (Guid userToken, UInt32 buildingId)
 		{
 			object[] args = { userToken, buildingId, OnResultChanged };
 			ThreadPool.QueueUserWorkItem(BackgroundPollerWorker.StartAsyncTask, args);
@@ -61,14 +57,14 @@ namespace BrakelInlogApplication
 				var buildingId = (UInt32)((object[])workItemState)[1];
 				var onResultChanged = (PollingResult)((object[])workItemState)[2];
 
-				int errorCount = ConstantHelper.MaxPollErrors;
+				var errorCount = ConstantHelper.MaxPollErrors;
 				
 				const string requestBody = @"{""command"":""progress""}\n";
 				string targetBuilding = Building.GetBuildingIp(buildingId);
 
 				Debug.WriteLine("Start polling");
 
-				bool done = false;
+				var done = false;
 				do
 				{
 					Thread.Sleep(ConstantHelper.PollInterval);
@@ -124,6 +120,7 @@ namespace BrakelInlogApplication
 					{
 						try
 						{
+							string sqlQuery = "";
 							var changesArray = result["changes"] as JArray;
 							if (changesArray == null) continue;
 							if (changesArray.Count == 0)
@@ -138,11 +135,21 @@ namespace BrakelInlogApplication
 									if (Boolean.Parse(item["ChangeStatus"].ToString()))
 									{
 										resultArray.Add(item);
+
+										sqlQuery += String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}
+																	GO", item["ChangeValue"], item["GroupID"], buildingId);
 									}
 								}
 								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
 								if (resultArray.Count > 0)
 								{
+									using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
+									{
+										connection.Open();									
+										var command = new SqlCommand(sqlQuery, connection);
+										command.ExecuteNonQuery();
+									}
+
 									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
 								}
 							}
