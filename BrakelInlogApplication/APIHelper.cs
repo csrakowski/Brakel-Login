@@ -161,6 +161,8 @@ namespace BrakelInlogApplication
 						if (requestBody.Length > 1)
 							requestBody = requestBody.Substring(1);
 						requestBody = @"{""changes"":[" + requestBody + "]}\n";
+						Debug.WriteLine("Make changes request: " + requestBody);
+
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						#endregion
 						#region Make Request
@@ -180,7 +182,7 @@ namespace BrakelInlogApplication
 						int bytesRead = stream.Read(buff, 0, buff.Length);
 						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
 
-						Debug.WriteLine(resultString);
+						Debug.WriteLine("Make changes response: " +resultString);
 						result = JObject.Parse(resultString);
 						#endregion
 					}
@@ -288,11 +290,13 @@ namespace BrakelInlogApplication
 		/// <param name="json">The result in JSON format</param>
 		public static void OnPollingResult (Guid userToken, UInt32 buildingId, String json)
 		{
+			Debug.WriteLine("Poll result: " + json);
+
 			string deviceID = "";
 			using (var connection = new SqlConnection(ConstantHelper.ConnectionString)) {
 				connection.Open ();
 
-				string query = String.Format ("SELECT [deviceId] FROM [token] WHERE [userToken] = '{0}'", userToken);
+				string query = String.Format ("SELECT [deviceId] FROM [token] WHERE [token] = '{0}'", userToken);
 				var command = new SqlCommand (query, connection);
 				deviceID = command.ExecuteScalar () as String;
 			}

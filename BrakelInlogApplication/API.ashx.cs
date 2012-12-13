@@ -388,8 +388,8 @@ namespace BrakelInlogApplication
 							{
 								#region Prepare to handle getGroups request
 
-								string userTokenString = _context.Request.Form["userToken"] ?? Guid.NewGuid().ToString();
-								string buildingIdString = _context.Request.Form["buildingId"] ?? "1";
+								string userTokenString = _context.Request.Form["userToken"];
+								string buildingIdString = _context.Request.Form["buildingId"];
 								Guid userToken;
 								if (Guid.TryParse(userTokenString, out userToken))
 								{

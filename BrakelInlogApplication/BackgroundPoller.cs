@@ -65,9 +65,11 @@ namespace BrakelInlogApplication
 				
 				string requestBody = @"{""command"":""progress""}\n";
 				string targetBuilding = Building.GetBuildingIp(buildingId);
-				
+
+				Debug.WriteLine("Start polling");
+
 				bool done = false;
-				while (!done)
+				do
 				{
 					Thread.Sleep(ConstantHelper.PollInterval);
 					
@@ -88,20 +90,23 @@ namespace BrakelInlogApplication
 						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();
+
+						Debug.WriteLine("Polling request: " +requestBody);
 						
 						byte[] buff = new byte[2048];
 						int bytesRead = stream.Read(buff, 0, buff.Length);
 						string resultString = Encoding.ASCII.GetString(buff, 0, bytesRead);
-						
-						Debug.WriteLine(resultString);
+
+						Debug.WriteLine("Polling response: " +resultString);
 						result = JObject.Parse(resultString);
 						#endregion
 					}
 					catch (Exception ex)
 					{
-						Debug.WriteLine(ex.Message);
-						if(errorCount-- == 0)
+						Debug.WriteLine("Polling error: " + ex.Message);
+						if(--errorCount == 0)
 						{
+							done = true;
 							OnResultChanged.Invoke(userToken, buildingId, "[ \"crash\":\"true\" ]");
 							break;
 						}
@@ -113,7 +118,7 @@ namespace BrakelInlogApplication
 						if(socket != null)
 							socket.Close();
 					}
-					
+
 					if (result != null)
 					{
 						try
@@ -133,6 +138,7 @@ namespace BrakelInlogApplication
 										resultArray.Add(item);
 									}
 								}
+								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
 								if (resultArray.Count > 0)
 								{
 									OnResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
@@ -145,7 +151,7 @@ namespace BrakelInlogApplication
 							Debug.WriteLine(e.StackTrace);
 						}
 					}
-				}
+				} while (!done);
 			}
 		}
 	}
