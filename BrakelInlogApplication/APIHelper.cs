@@ -102,12 +102,14 @@ namespace BrakelInlogApplication
 					SqlDataReader reader = command.ExecuteReader();
 					while (reader.Read())
 					{
+						string ps = reader["parentId"].ToString();
+						uint buildingId = ((String.IsNullOrEmpty(ps) || ps.Equals("null", StringComparison.OrdinalIgnoreCase)) ? 0 : UInt32.Parse(ps));
 						buildings.Add(new Building
 						{
 					  		AccessRole = Building.ParseAccessRightsFromString(reader["accessRights"].ToString()),
 							BuildingID = UInt32.Parse(reader["buildingId"].ToString()),
 						 	BuildingName = reader["name"].ToString(),
-							Parent = UInt32.Parse(reader["parentId"].ToString()),
+							Parent = buildingId,
 							HasAlarm = Boolean.Parse(reader["hasAlarm"].ToString())
 						});
 					}

@@ -1,1 +1,0 @@
-﻿DELETE FROM [token] WHERE DATEDIFF(minute, [createDateTime], cast(getDate() as datetime)) >= 20
