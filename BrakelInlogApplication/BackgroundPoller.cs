@@ -136,7 +136,8 @@ namespace BrakelInlogApplication
 									{
 										resultArray.Add(item);
 
-										sqlQuery += String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}
+										sqlQuery += String.Format(@"
+																	UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}
 																	GO
 																	", item["ChangeValue"], item["GroupID"], buildingId);
 									}
@@ -144,6 +145,7 @@ namespace BrakelInlogApplication
 								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
 								if (resultArray.Count > 0)
 								{
+									Debug.WriteLine(sqlQuery);
 									using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 									{
 										connection.Open();									

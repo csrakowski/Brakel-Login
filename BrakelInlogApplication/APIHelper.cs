@@ -29,39 +29,47 @@ namespace BrakelInlogApplication
 		/// <param name="passwordHash">The hashed password</param>
 		/// <param name="device">The deviceId of the iPhone or iPad</param>
 		/// <returns>A token not equal to all 0 on succes, a token of all 0 on failure</returns>
-		public static Guid Login(String username, String passwordHash, String device)
+		public static Tuple<Guid, String> Login(String username, String passwordHash, String device)
 		{
 			Guid userToken = Guid.Empty;
+			String friendlyName = String.Empty;
 
 			using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 			{
 				connection.Open();
 
 				// perform work with connection
-				string query = String.Format("SELECT [hash] FROM [user] WHERE [username] = '{0}'", username);
+				string query = String.Format("SELECT * FROM [user] WHERE [username] = '{0}'", username);
 				var command = new SqlCommand(query, connection);
-				var sqlHash = command.ExecuteScalar() as String;
 
-				//validate credentials
-				if (passwordHash.Equals(sqlHash, StringComparison.OrdinalIgnoreCase))
+				var reader = command.ExecuteReader();
+
+				if(reader.Read())
 				{
-					//generate token
-					userToken = Guid.NewGuid();
-
-					//register token in db to the user
-					query = String.Format("INSERT INTO [token] ([username], [token], [deviceId], [createDateTime]) VALUES('{0}','{1}','{2}','{3}')",
-					                     username, userToken, device, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
-					command = new SqlCommand(query, connection);
-					int result = command.ExecuteNonQuery();
-					if (result < 1)
+					//validate credentials
+					if (passwordHash.Equals(reader["hash"].ToString (), StringComparison.OrdinalIgnoreCase))
 					{
-						userToken = Guid.Empty;
+						//generate token
+						userToken = Guid.NewGuid();
+						friendlyName = reader["friendlyName"].ToString();
+
+						reader.Close();
+
+						//register token in db to the user
+						query = String.Format("INSERT INTO [token] ([username], [token], [deviceId], [createDateTime]) VALUES('{0}','{1}','{2}','{3}')",
+						                     username, userToken, device, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+						command = new SqlCommand(query, connection);
+						int result = command.ExecuteNonQuery();
+						if (result < 1)
+						{
+							userToken = Guid.Empty;
+						}
 					}
 				}
 			}
 
 			//return id
-			return userToken;
+			return new Tuple<Guid, string>(userToken, friendlyName);
 		}
 
 		/// <summary>

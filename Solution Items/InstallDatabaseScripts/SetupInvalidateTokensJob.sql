@@ -67,3 +67,6 @@ EndSave:
 
 GO
 
+--Fix issue in existing test data
+
+UPDATE [Brakel-Login].[dbo].[group]   SET [BuildingId] = 1GO

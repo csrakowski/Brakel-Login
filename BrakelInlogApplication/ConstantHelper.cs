@@ -6,7 +6,7 @@ namespace BrakelInlogApplication
 	/// <summary>
 	/// Helper class that wraps around the .NET ConfigurationManager and provides easier access
 	/// </summary>
-	public sealed class ConstantHelper
+	public static class ConstantHelper
 	{
 		/// <summary>
 		/// The connectionstring for the datasource provider

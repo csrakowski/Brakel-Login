@@ -193,8 +193,8 @@ namespace BrakelInlogApplication
 								{
 									if (!String.IsNullOrWhiteSpace(hash))
 									{
-										Guid userToken = APIHelper.Login(username, hash, device);
-										result = String.Format(@"{{ ""userToken"":""{0}"" }}", userToken);
+										Tuple<Guid, String> user = APIHelper.Login(username, hash, device);
+										result = String.Format(@"{{ ""userToken"":""{0}"", ""friendlyName"":""{1}"" }}", user.Item1, user.Item2);
 									}
 									else
 									{
