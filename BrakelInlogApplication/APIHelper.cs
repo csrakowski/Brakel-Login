@@ -200,17 +200,26 @@ namespace BrakelInlogApplication
 
 					//parse json and update changes
 					if (changesArray != null)
+					{
+						Debug.WriteLine ("Processing result, got array: {0}", new object[]{ changesArray.ToString(Newtonsoft.Json.Formatting.Indented) });
 						foreach (var item in changesArray)
 						{
 							var ch = changes.FirstOrDefault(i => i.GroupID.ToString(CultureInfo.InvariantCulture).Equals(item["GroupID"].ToString(), StringComparison.OrdinalIgnoreCase));
 							if (ch != default(Changes))
 							{
+								Debug.WriteLine(ch.ToJSONString());
 								ch.ChangeStatus = Boolean.Parse(item["ChangeStatus"].ToString());
 							}
 						}
 
-					//Start background polling					
-					BackgroundPoller.StartPollingBuilding(userToken, buildingId);
+						//Start background polling					
+						BackgroundPoller.StartPollingBuilding(userToken, buildingId);
+					}
+
+					Debug.WriteLine ("Processing result");
+					foreach (var item in changes) {
+						Debug.WriteLine(item.ToJSONString());
+					}
 
 					//return initial result
 					return changes;

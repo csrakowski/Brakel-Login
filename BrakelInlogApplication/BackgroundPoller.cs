@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using System.Net.Sockets;
+using Newtonsoft.Json;
 
 namespace BrakelInlogApplication
 {
@@ -136,7 +137,7 @@ namespace BrakelInlogApplication
 										resultArray.Add(item);
 									}
 								}
-								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
+								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString(Formatting.Indented));
 								if (resultArray.Count > 0)
 								{
 									using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
@@ -154,7 +155,7 @@ namespace BrakelInlogApplication
 										transaction.Commit();
 									}
 
-									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
+									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString(Formatting.None));
 								}
 							}
 						}
