@@ -59,7 +59,7 @@ namespace BrakelInlogApplication
 
 				var errorCount = ConstantHelper.MaxPollErrors;
 				
-				const string requestBody = @"{""command"":""progress""}\n";
+				const string requestBody = "{\"command\":\"progress\"}\n";
 				string targetBuilding = Building.GetBuildingIp(buildingId);
 
 				Debug.WriteLine("Start polling");
@@ -120,7 +120,6 @@ namespace BrakelInlogApplication
 					{
 						try
 						{
-							string sqlQuery = "";
 							var changesArray = result["changes"] as JArray;
 							if (changesArray == null) continue;
 							if (changesArray.Count == 0)
@@ -135,22 +134,24 @@ namespace BrakelInlogApplication
 									if (Boolean.Parse(item["ChangeStatus"].ToString()))
 									{
 										resultArray.Add(item);
-
-										sqlQuery += String.Format(@"
-																	UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}
-																	GO
-																	", item["ChangeValue"], item["GroupID"], buildingId);
 									}
 								}
 								Debug.WriteLine("Got {0} changes: {1}", resultArray.Count, resultArray.ToString());
 								if (resultArray.Count > 0)
 								{
-									Debug.WriteLine(sqlQuery);
 									using (var connection = new SqlConnection(ConstantHelper.ConnectionString))
 									{
-										connection.Open();									
-										var command = new SqlCommand(sqlQuery, connection);
-										command.ExecuteNonQuery();
+										connection.Open();
+										SqlTransaction transaction = connection.BeginTransaction();
+										var command = new SqlCommand("", connection, transaction);
+										foreach (var item in changesArray)
+										{
+											command.CommandText = String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}",
+											                                    item["ChangeValue"], item["GroupID"], buildingId);
+											command.ExecuteNonQuery();
+										}
+
+										transaction.Commit();
 									}
 
 									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString());
