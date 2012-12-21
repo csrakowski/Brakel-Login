@@ -39,7 +39,7 @@ namespace BrakelInlogApplication
 			if (String.IsNullOrEmpty (GroupName)) {
 				GroupName = String.Format("Groep {0}", GroupID);
 			}
-			return String.Format(@"{{""GroupID"":""{0}"",""GroupName"":""{1}"", ""ChangeValue"":""{2}"",""ChangeStatus"":""{3}""}}", GroupID, GroupName, ChangeValue, ChangeStatus.ToString().ToLower());
+			return String.Format(@"{{""GroupID"":""{0}"",""GroupName"":""{1}"",""ChangeValue"":""{2}"",""ChangeStatus"":""{3}""}}", GroupID, GroupName, ChangeValue, ChangeStatus.ToString().ToLower());
 		}
 	}
 }
