@@ -129,6 +129,7 @@ CREATE TABLE [dbo].[building](
 	[buildingId] [int] IDENTITY(1,1) NOT NULL,
 	[name] [varchar](255) NOT NULL,
 	[parentId] [int] NULL,
+	[endpoint] text NULL,
  CONSTRAINT [PK_building] PRIMARY KEY CLUSTERED 
 (
 	[buildingId] ASC
