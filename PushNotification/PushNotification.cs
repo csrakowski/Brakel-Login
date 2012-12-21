@@ -15,6 +15,21 @@ namespace PushNotifications
 		/// </summary>
 	    private static int _count = 1;
 
+		private const bool sandBox = true;
+
+		/// <summary>
+		/// The apple certificate.
+		/// </summary>
+		private static byte[] appleCert;
+
+		/// <summary>
+		/// Initializes the <see cref="PushNotifications.PushNotification"/> class.
+		/// </summary>
+		static PushNotification()
+		{
+			appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "brakelnotify.p12"));
+		}
+
 	    /// <summary>
         /// Method used to send pushnotifications
         /// </summary>
@@ -23,20 +38,21 @@ namespace PushNotifications
         /// <returns>Boolean indicating result status</returns>
         public static bool SendPushNotification(string deviceID, string message)
         {
-            const bool sandBox = true;
-
-			using (var push = new PushService())
+			try
 			{
-				var appleCert = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "brakelnotify.p12"));
-
-				//Configure and start Apple APNS
-				push.StartApplePushService(new ApplePushChannelSettings(!sandBox, appleCert, "brakel"));
-
-				//Fluent construction of an iOS notification
-				push.QueueNotification(NotificationFactory.Apple()
+				using (var push = new PushService())
+				{
+					//Configure and start Apple APNS
+					push.StartApplePushService(new ApplePushChannelSettings(!sandBox, appleCert, "brakel"));
+					
+					//Fluent construction of an iOS notification
+					push.QueueNotification(NotificationFactory.Apple()
 					                       .ForDeviceToken(deviceID)
 					                       .WithAlert(message)
 					                       .WithBadge(_count++));
+				}
+			} catch (Exception ex) {
+				return false;
 			}
 	        return true;
         }
