@@ -17,14 +17,6 @@ namespace BrakelInlogApplication
 		}
 
 		/// <summary>
-		/// Url for the test building (Development)
-		/// </summary>
-		public static string TestBuilding
-		{
-			get { return ConfigurationManager.AppSettings["TestBuilding"] ?? ""; }
-		}
-
-		/// <summary>
 		/// Device id of the Test iPad (Development)
 		/// </summary>
 		public static string TestIPad

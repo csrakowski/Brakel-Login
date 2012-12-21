@@ -59,9 +59,13 @@ namespace BrakelInlogApplication
 				var onResultChanged = (PollingResult)((object[])workItemState)[2];
 
 				var errorCount = ConstantHelper.MaxPollErrors;
-				
-				const string requestBody = "{\"command\":\"progress\"}\n";
-				string targetBuilding = Building.GetBuildingIp(buildingId);
+
+				string targetBuilding;
+				Building.GetBuildingEndpoint(buildingId, out targetBuilding);
+
+				string host = targetBuilding.Split (':')[0];
+				int port = Int32.Parse (targetBuilding.Split (':')[1]);
+				byte[] byte1 = Encoding.ASCII.GetBytes("{\"command\":\"progress\"}\n");
 
 				Debug.WriteLine("Start polling");
 
@@ -76,21 +80,17 @@ namespace BrakelInlogApplication
 					try
 					{
 						#region Make Request
-						string host = targetBuilding.Split (':')[0];
-						int port = Int32.Parse (targetBuilding.Split (':')[1]);
-						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
-						
 						socket = new TcpClient(host, port)
 						{
 							SendTimeout = ConstantHelper.BuildingTimeout,
 							ReceiveTimeout = ConstantHelper.BuildingTimeout
 						};
 
+						Debug.WriteLine("Sending polling request");
+
 						stream = socket.GetStream();
 						stream.Write(byte1, 0, byte1.Length);
 						stream.Flush();
-
-						Debug.WriteLine("Polling request: " +requestBody);
 						
 						var buff = new byte[2048];
 						var bytesRead = stream.Read(buff, 0, buff.Length);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace BrakelInlogApplication
 {
@@ -70,18 +71,29 @@ namespace BrakelInlogApplication
 		}
 
 		/// <summary>
-		/// Gets the building ip.
+		/// Gets the endpoint (ip or hostname, and a port) for the given building, if any.
 		/// </summary>
 		/// <returns>
-		/// The building ip.
+		/// True if an enpoint is known, false otherwise
 		/// </returns>
 		/// <param name='buildingId'>
 		/// Building identifier.
 		/// </param>
-		public static String GetBuildingIp(UInt32 buildingId)
+		/// <param name='buildingEndpoint'>
+		/// The building's endpoint
+		/// </param>
+		public static Boolean GetBuildingEndpoint (UInt32 buildingId, out String buildingEndpoint)
 		{
-			//TODO: Get ip from database based on building id
-			return ConstantHelper.TestBuilding;
+			using (var connection = new SqlConnection(ConstantHelper.ConnectionString)) {
+				connection.Open ();
+
+				string query = String.Format ("SELECT [endpoint] FROM [building] WHERE [buildingId] = {0}", buildingId);
+				var command = new SqlCommand (query, connection);
+				
+				var result = command.ExecuteScalar() as String;
+				buildingEndpoint = result;
+			}
+			return !String.IsNullOrEmpty(buildingEndpoint);
 		}
 	}
 

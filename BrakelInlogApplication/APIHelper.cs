@@ -158,7 +158,11 @@ namespace BrakelInlogApplication
 						byte[] byte1 = Encoding.ASCII.GetBytes(requestBody);
 						#endregion
 						#region Make Request
-						string targetBuilding = Building.GetBuildingIp(buildingId);
+						string targetBuilding;
+						Building.GetBuildingEndpoint(buildingId, out targetBuilding);
+						// We could surround it with a nice if-statement, but then we would need to do all sorts of administration to notify all the parties of this.
+						// If we just let it break with an exception, the API will catch it and send it to the iPad, which already handles the errors from those.
+
 						string host = targetBuilding.Split (':')[0];
 						int port = Int32.Parse (targetBuilding.Split (':')[1]);
 
