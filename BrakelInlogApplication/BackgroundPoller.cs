@@ -147,8 +147,10 @@ namespace BrakelInlogApplication
 										var command = new SqlCommand("", connection, transaction);
 										foreach (var item in changesArray)
 										{
-											command.CommandText = String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}",
-											                                    item["ChangeValue"], item["GroupID"], buildingId);
+											string query = String.Format(@"UPDATE [Group] SET [ChangeValue] = {0} WHERE [GroupID] = {1} AND [BuildingID] = {2}",
+											                             item["ChangeValue"], item["GroupID"], buildingId);
+											Debug.WriteLine(query);
+											command.CommandText = query;
 											command.ExecuteNonQuery();
 										}
 
@@ -156,6 +158,10 @@ namespace BrakelInlogApplication
 									}
 
 									onResultChanged.Invoke(userToken, buildingId, resultArray.ToString(Formatting.None));
+								}
+								if(resultArray.Count == changesArray.Count)
+								{
+									done = true;
 								}
 							}
 						}
