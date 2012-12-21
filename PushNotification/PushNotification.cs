@@ -40,6 +40,7 @@ namespace PushNotifications
         {
 			try
 			{
+				System.Diagnostics.Debug.WriteLine ("Sending push message WithBadge({0}), WithAlert({1}), ForDeviceToken({2})", _count, message, deviceID);
 				using (var push = new PushService())
 				{
 					//Configure and start Apple APNS
