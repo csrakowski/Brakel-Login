@@ -54,6 +54,12 @@ namespace PushNotifications
 				}
 			} catch (Exception ex) {
 				System.Diagnostics.Debug.WriteLine(ex.Message);
+				System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+				while (ex.InnerException != null ) {
+					ex = ex.InnerException;
+					System.Diagnostics.Debug.WriteLine(ex.Message);
+					System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+				}
 				return false;
 			}
 	        return true;

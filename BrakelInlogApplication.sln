@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Solution Items\InstallDatabaseScripts\Brakel-Login-DB-TestData.bak = Solution Items\InstallDatabaseScripts\Brakel-Login-DB-TestData.bak
 		Solution Items\InstallDatabaseScripts\InstallDatabaseScript.sql = Solution Items\InstallDatabaseScripts\InstallDatabaseScript.sql
 		Solution Items\InstallDatabaseScripts\SetupInvalidateTokensJob.sql = Solution Items\InstallDatabaseScripts\SetupInvalidateTokensJob.sql
+		Solution Items\aps_development.cer = Solution Items\aps_development.cer
+		Solution Items\Certificates.p12 = Solution Items\Certificates.p12
+		Solution Items\CertificateSigningRequest.certSigningRequest = Solution Items\CertificateSigningRequest.certSigningRequest
+		Solution Items\Entrust Root Certificates.zip = Solution Items\Entrust Root Certificates.zip
 	EndProjectSection
 EndProject
 Global
